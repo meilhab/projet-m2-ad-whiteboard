@@ -154,8 +154,17 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 				.getNumber().floatValue();
 		Forme forme = null;
 		switch (numForme) {
+		case 0:
+			forme = new FormePixel(bg, fg, trait);
+			break;
+		case 1:
+			forme = new FormeLigne(bg, fg, trait);
+			break;
 		case 2:
 			forme = new FormeRectangle(bg, fg, trait);
+			break;
+		case 3:
+			forme = new FormeOvale(bg, fg, trait);
 			break;
 		}
 		if (forme != null)
