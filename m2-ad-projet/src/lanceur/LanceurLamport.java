@@ -8,6 +8,11 @@ import java.rmi.registry.Registry;
 import protocoles.ILamport;
 import protocoles.Lamport;
 
+/**
+ * coucou
+ * @author cmichou2
+ *
+ */
 public class LanceurLamport {
 	public static void main(String[] args) throws RemoteException, InterruptedException {
 		Lamport myProc = new Lamport(0);
