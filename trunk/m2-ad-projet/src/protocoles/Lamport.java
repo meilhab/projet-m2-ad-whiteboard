@@ -78,20 +78,20 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 
 	public synchronized void recoitReq(int horloge, int idClient)
 			throws IOException {
-		log.log("[" + this.idClient + "]recoit REQ de" + "[" + idClient + "]");
+		log.log("[" + this.idClient + "]recoit REQ(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
 		t_horloge[idClient] = horloge;
 		t_message[idClient] = TypeMessage.REQ;
 
-		log.log("[" + this.idClient + "]envoi ACK à[" + idClient + "]");
+		log.log("[" + this.idClient + "]envoi ACK(" + this.horloge + ") à[" + idClient + "]");
 		voisins[idClient].recoitAck(this.horloge, this.idClient);
 		this.notify();
 	}
 
 	public synchronized void recoitAck(int horloge, int idClient)
 			throws IOException {
-		log.log("[" + this.idClient + "]recoit ACK de" + "[" + idClient + "]");
+		log.log("[" + this.idClient + "]recoit ACK(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
 		if (t_message[idClient] != TypeMessage.REQ) {
@@ -118,7 +118,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 
 	public synchronized void recoitRel(int horloge, int idClient)
 			throws IOException {
-		log.log("[" + this.idClient + "]recoit REL de" + "[" + idClient + "]");
+		log.log("[" + this.idClient + "]recoit REL(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
 		t_horloge[idClient] = horloge;
@@ -146,7 +146,6 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
