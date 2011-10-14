@@ -1,5 +1,6 @@
 package lanceur;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,7 +19,7 @@ public class test2 {
 	
 	public static final int registryPort = 5555;
 	
-	public static void main( String args[]) throws RemoteException, InterruptedException {
+	public static void main( String args[]) throws InterruptedException, IOException {
 		
 		procNumber =  Integer.parseInt(args[0]);
 		nbProcesses =  Integer.parseInt(args[1]);

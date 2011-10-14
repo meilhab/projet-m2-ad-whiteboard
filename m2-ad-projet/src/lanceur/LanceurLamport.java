@@ -1,5 +1,6 @@
 package lanceur;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -14,7 +15,7 @@ import protocoles.Lamport;
  *
  */
 public class LanceurLamport {
-	public static void main(String[] args) throws RemoteException, InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException {
 		Lamport myProc = new Lamport(0);
 		ILamport neighbors[] = new ILamport[5];
 
