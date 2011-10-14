@@ -2,7 +2,7 @@ package protocoles;
 
 import java.rmi.RemoteException;
 
-public class Lamport extends Protocole implements ILamport {
+public class Lamport extends Protocole implements ILamport, Runnable {
 	private static final long serialVersionUID = 995286733645484409L;
 
 	public enum TypeMessage {
@@ -17,8 +17,8 @@ public class Lamport extends Protocole implements ILamport {
 	public Lamport(int idClient) throws RemoteException {
 		super();
 		horloge = 0;
-		t_horloge = new int[5];
-		t_message = new TypeMessage[5];
+		t_horloge = new int[nbClients];
+		t_message = new TypeMessage[nbClients];
 		for (int i = 0; i < nbClients; i++) {
 			t_horloge[i] = 0;
 		}
@@ -30,19 +30,22 @@ public class Lamport extends Protocole implements ILamport {
 	}
 
 	public void demandeAcces() throws RemoteException, InterruptedException {
+		System.out.println("[" + idClient + "]" + "demande l'accès en section critique");
 		horloge++;
 		for (int i = 0; i < t_horloge.length; i++) {
 			if (i != idClient) {
-				voisins[i].recoitReq(horloge, i);
+				voisins[i].recoitReq(horloge, idClient);
 			}
 		}
 		t_horloge[idClient] = horloge;
 		t_message[idClient] = TypeMessage.REQ;
 
 		synchronized (this) {
+			System.out.println("[" + idClient + "]" + "attend la confirmation des autres clients");
 			boolean finAttente = false;
 			while (!finAttente) {
 				finAttente = true;
+				//TODO : correction de la condition à faire ici, elle ne passe pas même en ayant reçu un ACK de tous les autres
 				for (int i = 0; i < voisins.length; i++) {
 					if (i != idClient) {
 						if (!((t_horloge[idClient] < t_horloge[i]) || ((t_horloge[idClient] == t_horloge[i]) && (idClient < i)))) {
@@ -107,12 +110,27 @@ public class Lamport extends Protocole implements ILamport {
 		t_message[idClient] = TypeMessage.REL;
 		this.notify();
 	}
+	
+	public void test(int idClient) throws RemoteException{
+		System.out.println("test ->" + this.idClient + " de ->" + idClient);
+	}
 
 	public int max(int nb1, int nb2) {
 		if (nb1 < nb2) {
 			return nb2;
 		}
 		return nb1;
+	}
+
+	@Override
+	public void run() {
+		try {
+			demandeAcces();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
