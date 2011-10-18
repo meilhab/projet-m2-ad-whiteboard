@@ -8,15 +8,16 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 
 import protocoles.ILamport;
+import protocoles.ISuzukiKasami;
 import protocoles.Lamport;
+import protocoles.SuzukiKasami;
 
-public class LanceurLamport {
-
+public class LanceurSuzukiKasami {
 	static int procNumber;
 	static int nbProcesses;
 	// static int demande;
-	static Lamport myProc;
-	static ILamport[] neighbors;
+	static SuzukiKasami myProc;
+	static ISuzukiKasami[] neighbors;
 
 	public static final int registryPort = 5000;
 
@@ -27,21 +28,21 @@ public class LanceurLamport {
 		nbProcesses = Integer.parseInt(args[1]);
 		// demande = Integer.parseInt(args[2]);
 
-		neighbors = new ILamport[nbProcesses];
+		neighbors = new ISuzukiKasami[nbProcesses];
 
 		try {
-			myProc = new Lamport(procNumber);
+			myProc = new SuzukiKasami(procNumber);
 
 			Registry registry = null;
 			try {
-				// Declare Lamport Object to registry
+				// Declare SuzukiKasami Object to registry
 				registry = LocateRegistry.createRegistry(registryPort);
 			} catch (java.rmi.server.ExportException ee) {
 				registry = LocateRegistry.getRegistry(registryPort);
 			}
 
 			// Create Name en record in registry
-			String Name = new String("Lamport" + procNumber);
+			String Name = new String("SuzukiKamani" + procNumber);
 			System.out.println("Declare " + Name);
 			registry.rebind(Name, myProc);
 
@@ -60,9 +61,10 @@ public class LanceurLamport {
 			}
 			for (int i = 0; i < neighborsNames.length; i++) {
 				try {
-					neighbors[i] = (ILamport) registry
+					neighbors[i] = (ISuzukiKasami) registry
 							.lookup(neighborsNames[i]);
-					neighbors[i].test(procNumber);
+					// neighbors[i].test( procNumber);
+					neighbors[i].initialisation();
 				} catch (NotBoundException e) {
 					e.printStackTrace();
 				}
