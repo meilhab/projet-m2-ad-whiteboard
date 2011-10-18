@@ -12,6 +12,8 @@ public interface ILamport extends Remote {
 
 	public void recoitRel(int horloge, int idClient) throws IOException;
 	
+	public void attributionIdClient(int idClient);
+	
 	public void test(int idClient) throws RemoteException;
 
 }

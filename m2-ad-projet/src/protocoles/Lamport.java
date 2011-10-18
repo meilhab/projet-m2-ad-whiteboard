@@ -7,15 +7,15 @@ import java.util.Date;
 import log.LogManager;
 
 public class Lamport extends Protocole implements ILamport, Runnable {
+	public static final int REQ = 0;
+	public static final int REL = 1;
+	public static final int ACK = 2;
+	
 	private static final long serialVersionUID = 995286733645484409L;
-
-	public enum TypeMessage {
-		REQ, REL, ACK
-	};
 
 	private int horloge;
 	private int t_horloge[];
-	private TypeMessage t_message[];
+	private int t_message[];
 	private ILamport voisins[];
 	private LogManager log;
 
@@ -23,7 +23,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		super();
 		horloge = 0;
 		t_horloge = new int[nbClients];
-		t_message = new TypeMessage[nbClients];
+		t_message = new int[nbClients];
 		for (int i = 0; i < nbClients; i++) {
 			t_horloge[i] = 0;
 		}
@@ -41,7 +41,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 
 		horloge++;
 		t_horloge[idClient] = horloge;
-		t_message[idClient] = TypeMessage.REQ;
+		t_message[idClient] = REQ;
 
 		for (int i = 0; i < t_horloge.length; i++) {
 			if (i != idClient) {
@@ -98,7 +98,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 
 		this.horloge = max(this.horloge, horloge) + 1;
 		t_horloge[idClient] = horloge;
-		t_message[idClient] = TypeMessage.REQ;
+		t_message[idClient] = REQ;
 
 		log.log("[" + this.idClient + "]envoi ACK(" + this.horloge + ") à[" + idClient + "]");
 		voisins[idClient].recoitAck(this.horloge, this.idClient);
@@ -110,9 +110,9 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		log.log("[" + this.idClient + "]recoit ACK(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
-		if (t_message[idClient] != TypeMessage.REQ) {
+		if (t_message[idClient] != REQ) {
 			t_horloge[idClient] = horloge;
-			t_message[idClient] = TypeMessage.ACK;
+			t_message[idClient] = ACK;
 			this.notify();
 		}
 	}
@@ -128,7 +128,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 			}
 		}
 		t_horloge[idClient] = horloge;
-		t_message[idClient] = TypeMessage.REL;
+		t_message[idClient] = REL;
 		synchronized (this) {
 			this.notify();
 		}
@@ -140,10 +140,14 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 
 		this.horloge = max(this.horloge, horloge) + 1;
 		t_horloge[idClient] = horloge;
-		t_message[idClient] = TypeMessage.REL;
+		t_message[idClient] = REL;
 		this.notify();
 	}
 
+	public void attributionIdClient(int idClient){
+		this.idClient = idClient;
+	}
+	
 	public void test(int idClient) throws RemoteException {
 		System.out.println("test ->" + this.idClient + " de ->" + idClient);
 	}
