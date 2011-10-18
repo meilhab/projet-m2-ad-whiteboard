@@ -2,6 +2,7 @@ package protocoles;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Date;
 
 import log.LogManager;
 
@@ -34,6 +35,7 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		this.voisins = voisins;
 	}
 
+	@SuppressWarnings("deprecation")
 	public void demandeAcces() throws InterruptedException, IOException {
 		log.log("[" + idClient + "]" + "demande l'accès en section critique");
 
@@ -59,8 +61,12 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 				for (int i = 0; i < voisins.length; i++) {
 					if (i != idClient) {
 						if (!((t_horloge[idClient] < t_horloge[i]) || ((t_horloge[idClient] == t_horloge[i]) && (idClient < i)))) {
-							log.log("\t -> confirmation de" + "[" + i + "]");
+							log.log("\t -> attente de confirmation de" + "[" + i + "] -> " + t_horloge[idClient] + " --- " + t_horloge[i]);
+							
 							finAttente = false;
+						}
+						else {
+							log.log("\t -> confirmation de" + "[" + i + "] -> " + t_horloge[idClient] + " --- " + t_horloge[i]);
 						}
 					}
 				}
@@ -74,6 +80,16 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		 * Entrée en section critique
 		 */
 		log.log("[" + idClient + "]entre en section critique");
+		
+		/**
+		 * Sortie immédiate pour tester
+		 */
+		Date d = new Date();
+		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
+				+ d.getSeconds());
+
+		libereAcces();
+		
 	}
 
 	public synchronized void recoitReq(int horloge, int idClient)
@@ -113,7 +129,9 @@ public class Lamport extends Protocole implements ILamport, Runnable {
 		}
 		t_horloge[idClient] = horloge;
 		t_message[idClient] = TypeMessage.REL;
-		this.notify();
+		synchronized (this) {
+			this.notify();
+		}
 	}
 
 	public synchronized void recoitRel(int horloge, int idClient)
