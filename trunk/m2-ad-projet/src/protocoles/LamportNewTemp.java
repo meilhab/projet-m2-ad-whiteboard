@@ -1,12 +1,14 @@
 package protocoles;
 
+import groupe.IGroupe;
+
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Date;
 
 import log.LogManager;
 
-public class Lamport extends Protocole implements ILamport, IProtocole {
+public class LamportNewTemp extends Protocole implements ILamport, IProtocole {
 	public static final int REQ = 0;
 	public static final int REL = 1;
 	public static final int ACK = 2;
@@ -16,10 +18,11 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	private int horloge;
 	private int t_horloge[];
 	private int t_message[];
-	private ILamport voisins[];
+//	private ILamport voisins[];
 	private LogManager log;
+	private IGroupe igroupe;
 
-	public Lamport(int idClient) throws RemoteException {
+	public LamportNewTemp(int idClient, IGroupe igroupe) throws RemoteException {
 		super();
 		horloge = 0;
 		t_horloge = new int[nbClients];
@@ -30,12 +33,28 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE);
 		enregistrementFini = false;
+		
+		this.igroupe = igroupe;
+	}
+	
+	public LamportNewTemp(IGroupe igroupe) throws RemoteException{
+		super();
+		horloge = 0;
+		t_horloge = new int[nbClients];
+		t_message = new int[nbClients];
+		for (int i = 0; i < nbClients; i++) {
+			t_horloge[i] = 0;
+		}
+		log = new LogManager(LogManager.PROTOCOLE);
+		enregistrementFini = false;
+		
+		this.igroupe = igroupe;
 	}
 
-	public void setVoisins(ILamport voisins[]) {
-		this.voisins = voisins;
+	public void setIdClient(int idClient){
+		this.idClient = idClient;
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	public void demandeAcces() throws InterruptedException, IOException {
 		log.log("[" + idClient + "]" + "demande l'accès en section critique");
@@ -48,7 +67,8 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 			if (i != idClient) {
 				log.log("[" + idClient + "]envoi REQ(" + horloge + ") à " + i);
 
-				voisins[i].recoitReq(horloge, idClient);
+				//voisins[i].recoitReq(horloge, idClient);
+				igroupe.receptionMessage(LAMPORT, REQ, idClient, i, horloge);
 			}
 		}
 
@@ -59,7 +79,7 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 			while (!finAttente) {
 				finAttente = true;
 
-				for (int i = 0; i < voisins.length; i++) {
+				for (int i = 0; i < nbClients; i++) {
 					if (i != idClient) {
 						if (!((t_horloge[idClient] < t_horloge[i]) || ((t_horloge[idClient] == t_horloge[i]) && (idClient < i)))) {
 							log.log("\t -> attente de confirmation de" + "[" + i + "] -> " + t_horloge[idClient] + " --- " + t_horloge[i]);
@@ -94,14 +114,15 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	}
 
 
-	public void libereAcces() throws IOException {
+	public void libereAcces() throws IOException, InterruptedException {
 		log.log("[" + idClient + "]sort de section critique");
 
 		horloge = horloge + 1;
-		for (int i = 0; i < voisins.length; i++) {
+		for (int i = 0; i < nbClients; i++) {
 			if (i != idClient) {
 				log.log("[" + idClient + "]envoi REL(" + horloge + ") à " + i);
-				voisins[i].recoitRel(horloge, idClient);
+				//voisins[i].recoitRel(horloge, idClient);
+				igroupe.receptionMessage(LAMPORT, REL, idClient, i, horloge);
 			}
 		}
 		t_horloge[idClient] = horloge;
@@ -125,7 +146,7 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	
 
 	public synchronized void recoitReq(int horloge, int idClient)
-			throws IOException {
+			throws IOException, InterruptedException, RemoteException {
 		log.log("[" + this.idClient + "]recoit REQ(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
@@ -133,12 +154,13 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		t_message[idClient] = REQ;
 
 		log.log("[" + this.idClient + "]envoi ACK(" + this.horloge + ") à[" + idClient + "]");
-		voisins[idClient].recoitAck(this.horloge, this.idClient);
+		//voisins[idClient].recoitAck(this.horloge, this.idClient);
+		igroupe.receptionMessage(LAMPORT, ACK, this.idClient, idClient, this.horloge);
 		this.notify();
 	}
 
 	public synchronized void recoitAck(int horloge, int idClient)
-			throws IOException {
+			throws IOException, RemoteException {
 		log.log("[" + this.idClient + "]recoit ACK(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
@@ -150,7 +172,7 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	}
 	
 	public synchronized void recoitRel(int horloge, int idClient)
-			throws IOException {
+			throws IOException, RemoteException {
 		log.log("[" + this.idClient + "]recoit REL(" + horloge + ") de" + "[" + idClient + "]");
 
 		this.horloge = max(this.horloge, horloge) + 1;
@@ -160,22 +182,22 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	}
 
 	@Override
-	public void attributionIdClient(int idClient){
+	public void attributionIdClient(int idClient) throws RemoteException{
 		this.idClient = idClient;
 	}
 	
 	@Override
-	public int recuperationIdClient(){
+	public int recuperationIdClient() throws RemoteException{
 		return idClient;
 	}
 
 	@Override
-	public void termineEnregistrement() {
+	public void termineEnregistrement() throws RemoteException{
 		enregistrementFini = true;
 	}
 
 	@Override
-	public void miseEnAttenteEnregistrement() {
+	public void miseEnAttenteEnregistrement() throws RemoteException{
 		enregistrementFini = false;
 	}
 
