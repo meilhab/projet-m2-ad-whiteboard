@@ -14,4 +14,10 @@ public abstract class Protocole extends UnicastRemoteObject {
 	protected int nbClients = 5;
 
 	protected int idClient;
+	
+	public static final int LAMPORT = 0;
+	public static final int SUZUKIKASAMI = 1;
+	public static final int NAIMITREHEL = 2;
+	
+	protected boolean enregistrementFini;
 }
