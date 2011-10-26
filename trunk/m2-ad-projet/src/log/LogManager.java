@@ -3,12 +3,24 @@ package log;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Classe permettant de générer des logs de protocoles ou de groupe
+ * 
+ * @author Benoit Meilhac
+ * @author Colin Michoudet
+ */
 public class LogManager {
 	public static final int GROUPE = 0;
 	public static final int PROTOCOLE = 1;
 	private String nomFichier;
 	private FileWriter writer;
 
+	/**
+	 * Constructeur instanciant un gestionnaire de logs
+	 * 
+	 * @param type
+	 *            type du gestionnaire de logs (groupe/protocole)
+	 */
 	public LogManager(int type) {
 		switch (type) {
 		case GROUPE:
@@ -22,6 +34,13 @@ public class LogManager {
 		}
 	}
 
+	/**
+	 * Permet d'écrire dans le journal de logs
+	 * 
+	 * @param texte
+	 *            texte à écrire dans le log
+	 * @throws IOException
+	 */
 	public void log(String texte) throws IOException {
 		try {
 			System.out.println(texte);

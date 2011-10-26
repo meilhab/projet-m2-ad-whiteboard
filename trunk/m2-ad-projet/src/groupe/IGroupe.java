@@ -5,6 +5,12 @@ import java.rmi.Remote;
 
 import protocoles.IProtocole;
 
+/**
+ * Interface contenant les méthodes distantes pour le groupe
+ * 
+ * @author Benoit Meilhac
+ * @author Colin Michoudet
+ */
 public interface IGroupe extends Remote {
 
 	/**
@@ -43,6 +49,6 @@ public interface IGroupe extends Remote {
 	 * @throws InterruptedException
 	 */
 	public void receptionMessage(int tp, int tm, int idEnvoi,
-			int idDestination, int horloge) throws IOException,
+			int idDestination, int horloge, int jeton[]) throws IOException,
 			InterruptedException;
 }

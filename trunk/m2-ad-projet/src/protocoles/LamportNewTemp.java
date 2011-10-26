@@ -68,7 +68,7 @@ public class LamportNewTemp extends Protocole implements ILamport, IProtocole {
 				log.log("[" + idClient + "]envoi REQ(" + horloge + ") à " + i);
 
 				//voisins[i].recoitReq(horloge, idClient);
-				igroupe.receptionMessage(LAMPORT, REQ, idClient, i, horloge);
+				igroupe.receptionMessage(LAMPORT, REQ, idClient, i, horloge, null);
 			}
 		}
 
@@ -122,7 +122,7 @@ public class LamportNewTemp extends Protocole implements ILamport, IProtocole {
 			if (i != idClient) {
 				log.log("[" + idClient + "]envoi REL(" + horloge + ") à " + i);
 				//voisins[i].recoitRel(horloge, idClient);
-				igroupe.receptionMessage(LAMPORT, REL, idClient, i, horloge);
+				igroupe.receptionMessage(LAMPORT, REL, idClient, i, horloge, null);
 			}
 		}
 		t_horloge[idClient] = horloge;
@@ -155,7 +155,7 @@ public class LamportNewTemp extends Protocole implements ILamport, IProtocole {
 
 		log.log("[" + this.idClient + "]envoi ACK(" + this.horloge + ") à[" + idClient + "]");
 		//voisins[idClient].recoitAck(this.horloge, this.idClient);
-		igroupe.receptionMessage(LAMPORT, ACK, this.idClient, idClient, this.horloge);
+		igroupe.receptionMessage(LAMPORT, ACK, this.idClient, idClient, this.horloge, null);
 		this.notify();
 	}
 
