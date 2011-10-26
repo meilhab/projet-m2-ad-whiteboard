@@ -1,5 +1,7 @@
 package lanceur;
 
+import groupe.IGroupe;
+
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -8,11 +10,55 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 
 import protocoles.ILamport;
+import protocoles.IProtocole;
 import protocoles.ISuzukiKasami;
 import protocoles.Lamport;
+import protocoles.LamportNewTemp;
 import protocoles.SuzukiKasami;
 
 public class LanceurSuzukiKasami {
+	
+	public static void main(String []args){
+		try {
+			Registry registry = LocateRegistry.getRegistry(2222);
+			IGroupe ig = (IGroupe) registry.lookup("rmi://localhost/groupe");
+
+			IProtocole lsk = new SuzukiKasami(ig);
+			
+			ig.enregistrementClient(lsk);
+			
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			SuzukiKasami llsk = (SuzukiKasami) lsk;
+			llsk.initialisation();
+			llsk.demandeAcces();
+			
+			while(true){
+				Random r = new Random(System.currentTimeMillis());
+				int waitingTime = (r.nextInt(20) + 10) * 1000;
+				System.out.println("Waiting for " + waitingTime + " ms");
+				try {
+					Thread.sleep(waitingTime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
+		} catch(Exception e) {
+			System.out.println("An exception has occurred!");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	/*
 	static int procNumber;
 	static int nbProcesses;
 	// static int demande;
@@ -85,6 +131,8 @@ public class LanceurSuzukiKasami {
 		// if(demande == 0) {
 		myProc.demandeAcces();
 		// }
+		 * 
+		 */
 		/*
 		 * } else { System.out.println("Waiting for 10000 ms"); try {
 		 * Thread.sleep(10000); } catch (InterruptedException e) {
@@ -92,6 +140,7 @@ public class LanceurSuzukiKasami {
 		 */
 
 		// Wait for election and randomly start a new one
+	/*
 		while (true) {
 			Random r = new Random(System.currentTimeMillis());
 			int waitingTime = (r.nextInt(20) + 10) * 1000;
@@ -103,6 +152,6 @@ public class LanceurSuzukiKasami {
 			}
 
 		}
-	}
+	}*/
 
 }
