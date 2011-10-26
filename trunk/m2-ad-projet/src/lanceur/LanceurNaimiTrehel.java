@@ -8,7 +8,6 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 
 import protocoles.INaimiTrehel;
-import protocoles.ISuzukiKasami;
 import protocoles.NaimiTrehel;
 
 public class LanceurNaimiTrehel {
