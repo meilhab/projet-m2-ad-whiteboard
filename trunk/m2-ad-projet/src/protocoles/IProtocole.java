@@ -30,21 +30,18 @@ public interface IProtocole extends Remote {
 	public int recuperationIdClient() throws RemoteException;
 
 	/**
-	 * Signale au protocole la fin de l'enregistrement sur le groupe
+	 * Lancement de l'interface graphique
 	 * 
 	 * @throws RemoteException
 	 */
-	public void termineEnregistrement() throws RemoteException;
+	public void lancerGUI() throws RemoteException;
 
 	/**
-	 * Signale au protocole que l'enregistrement sur le groupe n'est pas fini
+	 * Transmission d'une forme à l'interface graphique
 	 * 
+	 * @param forme
+	 *            forme à transmettre
 	 * @throws RemoteException
 	 */
-	public void miseEnAttenteEnregistrement() throws RemoteException;
-
-	
-	public void lancerGUI() throws RemoteException;
-	
 	public void transmissionForme(Forme forme) throws RemoteException;
 }

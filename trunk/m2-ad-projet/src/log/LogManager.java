@@ -19,7 +19,13 @@ public class LogManager {
 	 * Constructeur instanciant un gestionnaire de logs
 	 * 
 	 * @param type
-	 *            type du gestionnaire de logs (groupe/protocole)
+	 *            type du gestionnaire de logs (GROUPE/PROTOCOLE)
+	 * @param idClient
+	 *            si client en local : idClient différent de -1 pour un log
+	 *            différent par client <br />
+	 *            si client en réseau : idClient à -1 car pas besoin d'avoir
+	 *            différents journaux de log
+	 * 
 	 */
 	public LogManager(int type, int idClient) {
 		switch (type) {
@@ -27,7 +33,7 @@ public class LogManager {
 			nomFichier = "logGroupe.txt";
 			break;
 		case PROTOCOLE:
-			if(idClient == -1){
+			if (idClient == -1) {
 				nomFichier = "logProtocole.txt";
 			} else {
 				nomFichier = "logProtocole" + idClient + ".txt";
@@ -56,5 +62,4 @@ public class LogManager {
 			e.printStackTrace();
 		}
 	}
-
 }

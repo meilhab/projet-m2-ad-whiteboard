@@ -13,6 +13,12 @@ import protocoles.NaimiTrehel;
 import protocoles.Protocole;
 import protocoles.SuzukiKasami;
 
+/***
+ * Lanceur permettant de gérer les différents protocoles pour un client
+ * 
+ * @author Benoit Meilhac
+ * @author Colin Michoudet
+ */
 public class LanceurClient extends UnicastRemoteObject {
 
 	private static final long serialVersionUID = 4654809517720937785L;
@@ -21,15 +27,36 @@ public class LanceurClient extends UnicastRemoteObject {
 	private IGroupe igroupe;
 	private Protocole protocole;
 
-	public LanceurClient(String typeProtocole) throws RemoteException {
+	/**
+	 * Constructeur
+	 */
+	public LanceurClient() throws RemoteException {
 
 	}
 
-	private void connexionGroupe(String nomGroupe) throws RemoteException,
-			NotBoundException, MalformedURLException {
-		igroupe = (IGroupe) Naming.lookup("rmi://localhost:2222/groupe");
+	/**
+	 * Récupération de l'interface du groupe
+	 * 
+	 * @param nomGroupeComplet
+	 *            adresse du groupe sur le réseau
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 * @throws MalformedURLException
+	 */
+	private void connexionGroupe(String nomGroupeComplet)
+			throws RemoteException, NotBoundException, MalformedURLException {
+		igroupe = (IGroupe) Naming.lookup(nomGroupeComplet);
 	}
 
+	/**
+	 * Instanciation de l'interface de protocole en fonction du type de
+	 * protocole voulu
+	 * 
+	 * @param typeProtocole
+	 *            protocole choisi : Lamport/SuzukiKasami, par défaut
+	 *            NaimiTrehel
+	 * @throws RemoteException
+	 */
 	private void associeProtocole(String typeProtocole) throws RemoteException {
 		if (igroupe != null) {
 			if (typeProtocole.equalsIgnoreCase("Lamport")) {
@@ -42,18 +69,29 @@ public class LanceurClient extends UnicastRemoteObject {
 		}
 	}
 
-	private void connexionProtocole2Groupe(String typeProtocole)
-			throws IOException, NotBoundException {
+	/**
+	 * Connexion du client vers le groupe pour lui signaler sa présence et
+	 * instanciation du protocole
+	 * 
+	 * @param typeProtocole
+	 *            protocole choisi : Lamport/SuzukiKasami, par défaut
+	 *            NaimiTrehel
+	 * @param nomClientPartiel
+	 *            adresse partielle du client sur le réseau
+	 * @throws IOException
+	 * @throws NotBoundException
+	 */
+	private void connexionProtocole2Groupe(String typeProtocole,
+			String nomClientPartiel) throws IOException, NotBoundException {
 		igroupe.enregistrementClient(iprotocole);
-		Naming.rebind(
-				"rmi://localhost:2222/client"
-						+ iprotocole.recuperationIdClient(), iprotocole);
+		Naming.rebind(nomClientPartiel + iprotocole.recuperationIdClient(),
+				iprotocole);
 
 		if (typeProtocole.equalsIgnoreCase("Lamport")) {
 			protocole = (Lamport) iprotocole;
 		} else if (typeProtocole.equalsIgnoreCase("SuzukiKasami")) {
 			protocole = (SuzukiKasami) iprotocole;
-			((SuzukiKasami) protocole).initialisation();
+			((SuzukiKasami) protocole).initialisation(0);
 		} else {
 			protocole = (NaimiTrehel) iprotocole;
 			((NaimiTrehel) protocole).initialisation(0);
@@ -61,10 +99,15 @@ public class LanceurClient extends UnicastRemoteObject {
 
 	}
 
-	public int getId() throws RemoteException {
-		return iprotocole.recuperationIdClient();
-	}
-
+	/**
+	 * Lanceur principal du client
+	 * 
+	 * @param args
+	 *            Paramètres pour exécuter le client correctement
+	 * @throws NotBoundException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static void main(String[] args) throws NotBoundException,
 			IOException, InterruptedException {
 		/*
@@ -76,13 +119,16 @@ public class LanceurClient extends UnicastRemoteObject {
 		String typeProtocole = args[0];
 		// String nomGroupe = args[1];
 		// int portGroupe = Integer.parseInt(args[2]);
-		String nomGroupe = "rmi://localhost:2222/groupe";
+		String portGroupe = "2222";
+		String nomGroupe = "groupe";
+		String nomGroupeComplet = "rmi://localhost:" + portGroupe + "/"
+				+ nomGroupe;
+		String nomClientPartiel = "rmi://localhost:" + portGroupe + "/client";
 
-		LanceurClient lc = new LanceurClient(typeProtocole);
+		LanceurClient lc = new LanceurClient();
 
-		lc.connexionGroupe(nomGroupe);
+		lc.connexionGroupe(nomGroupeComplet);
 		lc.associeProtocole(typeProtocole);
-		lc.connexionProtocole2Groupe(typeProtocole);
+		lc.connexionProtocole2Groupe(typeProtocole, nomClientPartiel);
 	}
-
 }

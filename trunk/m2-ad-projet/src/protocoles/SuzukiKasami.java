@@ -20,22 +20,39 @@ import log.LogManager;
  */
 public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 		IProtocole {
-	public static final int REQ = 0;
-	public static final int MSGJETON = 1;
 
 	private static final long serialVersionUID = 7122328821121745904L;
 
+	/**
+	 * valeur de l'horloge locale
+	 */
 	private int horloge;
+
+	/**
+	 * booléen indiquant si le client possède le jeton
+	 */
 	private boolean AJ;
+
+	/**
+	 * booléen indiquand si le processus est en section critique
+	 */
 	private boolean SC;
+
+	/**
+	 * tableau des valeurs des horloges des différents clients
+	 */
 	private int t_horloge[];
+
+	/**
+	 * tableau contenant les horloges des différents clients ayant eu le jeton
+	 */
 	private int jeton[];
 
 	/**
 	 * Constructeur du protocole
 	 * 
 	 * @param igroupe
-	 *            interface du groupe pour la communication
+	 *            lien vers l'interface du groupe
 	 * @throws RemoteException
 	 */
 	public SuzukiKasami(IGroupe igroupe) throws RemoteException {
@@ -51,14 +68,12 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 		}
 
 		this.igroupe = igroupe;
-		demandeSCEnCours = false;
 	}
 
-	/**
-	 * Permet au processus de demander l'accès à la section critique
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @see protocoles.Protocole#demandeAcces()
 	 */
 	public void demandeAcces() throws IOException, InterruptedException {
 		log.log("[" + idClient + "]" + "demande l'accès en section critique");
@@ -72,24 +87,26 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 				if (i != idClient) {
 					log.log("[" + idClient + "]envoi REQ(" + horloge + ") à["
 							+ i + "]");
-					
-					final int itemp = i; 
-					Thread th = new Thread(new Runnable(){
+
+					final int itemp = i;
+					Thread th = new Thread(new Runnable() {
 						@Override
 						public void run() {
 							try {
-								SuzukiKasami.this.igroupe.receptionMessage(SUZUKIKASAMI, REQ, idClient, itemp, htemp, null);
+								SuzukiKasami.this.igroupe.receptionMessage(
+										SUZUKIKASAMI, REQ, idClient, itemp,
+										htemp, null);
 							} catch (IOException e) {
 								e.printStackTrace();
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
 						}
-						
+
 					});
 					th.start();
-//					igroupe.receptionMessage(SUZUKIKASAMI, REQ, idClient, i,
-	//						horloge, null);
+					// igroupe.receptionMessage(SUZUKIKASAMI, REQ, idClient, i,
+					// horloge, null);
 				}
 			}
 
@@ -102,19 +119,41 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 				}
 			}
 		} else {
-			/**
-			 * Entrée en section critique
-			 */
-
 			sectionCritique();
 		}
 	}
 
-	/**
-	 * Permet au processus de quitter la section critique et de rendre la main
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @see protocoles.Protocole#sectionCritique()
+	 */
+	@SuppressWarnings("deprecation")
+	public synchronized void sectionCritique() throws IOException,
+			InterruptedException {
+		/**
+		 * Entrée en section critique
+		 */
+		log.log("[" + this.idClient + "]entre en section critique");
+
+		Date d = new Date();
+		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
+				+ d.getSeconds());
+
+		if (!listeForme.isEmpty()) {
+			System.out.println("Dessine la forme dessine !");
+			Forme forme = listeForme.remove(0);
+			tableauBlanc.canvas.delivreForme(forme);
+			igroupe.receptionForme(idClient, forme);
+		}
+
+		libereAcces();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.Protocole#libereAcces()
 	 */
 	public void libereAcces() throws IOException, InterruptedException {
 		demandeSCEnCours = false;
@@ -138,61 +177,34 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 			log.log("[" + idClient + "]envoi MSGJETON à[" + valeurClient + "]");
 
 			AJ = false;
-			
+
 			final int vtemp = valeurClient;
-			final int []jtemp = jeton;
-			Thread th = new Thread(new Runnable(){
+			final int[] jtemp = jeton;
+			Thread th = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						SuzukiKasami.this.igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, idClient, vtemp, -1, jtemp);
+						SuzukiKasami.this.igroupe.receptionMessage(
+								SUZUKIKASAMI, MSGJETON, idClient, vtemp, -1,
+								jtemp);
 					} catch (IOException e) {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			});
 			th.start();
-			
-			//igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, idClient,
-				//	valeurClient, -1, jeton);
+
+			// igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, idClient,
+			// valeurClient, -1, jeton);
 		}
-		if(!listeForme.isEmpty()){
-			if(!demandeSCEnCours){
+		if (!listeForme.isEmpty()) {
+			if (!demandeSCEnCours) {
 				demandeAcces();
 			}
 		}
-	}
-
-	/**
-	 * Procédure d'entrée en section critique
-	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	@SuppressWarnings("deprecation")
-	public synchronized void sectionCritique() throws IOException,
-			InterruptedException {
-		/**
-		 * Entrée en section critique
-		 */
-		log.log("[" + this.idClient + "]entre en section critique");
-		
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
-		
-		if(!listeForme.isEmpty()){
-			System.out.println("Dessine la forme dessine !");
-			Forme forme = listeForme.remove(0);
-			tableauBlanc.canvas.delivreForme(forme);
-			igroupe.receptionForme(idClient, forme);
-		}
-		
-
-		libereAcces();
 	}
 
 	/**********************
@@ -204,8 +216,8 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.ISuzukiKasami#initialisation()
 	 */
-	public void initialisation() {
-		if (idClient == 0) {
+	public void initialisation(int idClient) {
+		if (this.idClient == idClient) {
 			AJ = true;
 		}
 	}
@@ -215,7 +227,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.ISuzukiKasami#recoitReq(int, int)
 	 */
-	@Override
 	public synchronized void recoitReq(int horloge, int idClient)
 			throws IOException, InterruptedException {
 		log.log("[" + this.idClient + "]recoit REQ(" + horloge + ") de" + "["
@@ -226,14 +237,16 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 			log.log("[" + this.idClient + "]envoi MSGJETON à[" + idClient + "]");
 
 			AJ = false;
-			
+
 			final int idtemp = idClient;
-			final int []jtemp = jeton;
-			Thread th = new Thread(new Runnable(){
+			final int[] jtemp = jeton;
+			Thread th = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						SuzukiKasami.this.igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, SuzukiKasami.this.idClient, idtemp, -1, jtemp);
+						SuzukiKasami.this.igroupe.receptionMessage(
+								SUZUKIKASAMI, MSGJETON,
+								SuzukiKasami.this.idClient, idtemp, -1, jtemp);
 					} catch (IOException e) {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
@@ -242,9 +255,9 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 				}
 			});
 			th.start();
-			
-			//igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, this.idClient,
-				//	idClient, -1, jeton);
+
+			// igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, this.idClient,
+			// idClient, -1, jeton);
 		}
 	}
 
@@ -253,7 +266,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.ISuzukiKasami#recoitMsgJeton(int[], int)
 	 */
-	@Override
 	public synchronized void recoitMsgJeton(int[] jeton, int idClient)
 			throws IOException {
 		log.log("[" + this.idClient + "]recoit MSGJETON de[" + idClient + "]");
@@ -266,9 +278,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 		}
 
 		this.notify();
-		/**
-		 * Entrée en section critique
-		 */
 
 		try {
 			sectionCritique();
@@ -282,7 +291,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.IProtocole#attributionIdClient(int)
 	 */
-	@Override
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
@@ -293,7 +301,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.IProtocole#recuperationIdClient()
 	 */
-	@Override
 	public int recuperationIdClient() throws RemoteException {
 		return idClient;
 	}
@@ -301,39 +308,23 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see protocoles.IProtocole#termineEnregistrement()
+	 * @see protocoles.IProtocole#lancerGUI()
 	 */
-	@Override
-	public void termineEnregistrement() throws RemoteException {
-		enregistrementFini = true;
+	public void lancerGUI() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				tableauBlanc = new TableauBlancUI(idClient + "",
+						SuzukiKasami.this);
+			}
+		});
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see protocoles.IProtocole#miseEnAttenteEnregistrement()
-	 */
-	@Override
-	public void miseEnAttenteEnregistrement() throws RemoteException {
-		enregistrementFini = false;
-	}
-	
-	/* (non-Javadoc)
-	 * @see protocoles.IProtocole#lancerGUI()
-	 */
-	@Override
-	public void lancerGUI(){
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				tableauBlanc = new TableauBlancUI(idClient + "", SuzukiKasami.this);
-			}
-		});
-	}
-	
-	/* (non-Javadoc)
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
-	public void transmissionForme(Forme forme){
+	public void transmissionForme(Forme forme) {
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }

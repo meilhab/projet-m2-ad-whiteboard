@@ -5,12 +5,21 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * Interface contenant les méthodes distantes pour le protocole Suzuki-Kasami
+ * Interface contenant les méthodes distantes du protocole Suzuki-Kasami
  * 
  * @author Benoit Meilhac
  * @author Colin Michoudet
  */
 public interface ISuzukiKasami extends Remote {
+
+	/**
+	 * Initialisation par défaut du processus
+	 * 
+	 * @param idClient
+	 *            identifiant du client choisit comme point de départ
+	 * @throws RemoteException
+	 */
+	public void initialisation(int idClient) throws RemoteException;
 
 	/**
 	 * Réception d'un message de type REQ
@@ -36,12 +45,5 @@ public interface ISuzukiKasami extends Remote {
 	 * @throws IOException
 	 */
 	public void recoitMsgJeton(int[] jeton, int idClient) throws IOException;
-
-	/**
-	 * Initialisation par défaut du processus
-	 * 
-	 * @throws RemoteException
-	 */
-	public void initialisation() throws RemoteException;
 
 }
