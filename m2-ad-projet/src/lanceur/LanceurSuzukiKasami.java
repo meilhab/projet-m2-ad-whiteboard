@@ -29,7 +29,7 @@ public class LanceurSuzukiKasami {
 			
 			SuzukiKasami llsk = (SuzukiKasami) lsk;
 			System.out.println("------------>>" + llsk.recuperationIdClient());
-			llsk.initialisation();
+			llsk.initialisation(0);
 			llsk.demandeAcces();
 			
 			while(true){

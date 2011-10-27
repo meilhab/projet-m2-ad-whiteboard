@@ -15,10 +15,7 @@ import protocoles.ILamport;
 import protocoles.INaimiTrehel;
 import protocoles.IProtocole;
 import protocoles.ISuzukiKasami;
-import protocoles.Lamport;
-import protocoles.NaimiTrehel;
 import protocoles.Protocole;
-import protocoles.SuzukiKasami;
 
 /**
  * Classe permettant de gérer les différents messages échangés entre les clients
@@ -31,8 +28,20 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 
 	private static final long serialVersionUID = 6377970808899923007L;
 
+	/**
+	 * Map des différents clients : un client a un numéro et une interface de
+	 * protocole
+	 */
 	private HashMap<Integer, IProtocole> liste_voisins;
+
+	/**
+	 * nombre max de clients possibles
+	 */
 	private static int nbClientsTotal = 5;
+
+	/**
+	 * gestionnaire de log du groupe
+	 */
 	private LogManager log;
 
 	/**
@@ -76,24 +85,20 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	public synchronized void enregistrementClient(IProtocole ip)
 			throws IOException, NotBoundException {
 		log.log("Demande d'enregistrement client");
-		
+
 		int taille = liste_voisins.size();
 		if (taille == nbClientsTotal) {
 			log.log("\tNon traîtée : liste de participants pleine");
 		} else if (taille < nbClientsTotal) {
 			int numClient = getNumClient();
 			log.log("\tTraîtement en cours : enregistrement client" + numClient);
-			
+
 			liste_voisins.put(numClient, ip);
 			ip.attributionIdClient(numClient);
 
 			// fait suivre le fait qu'on a fini l'enregistrement
 			if (taille + 1 == nbClientsTotal) {
 				log.log("\tFin des enregistrements : transmission aux clients");
-
-				for (IProtocole client : liste_voisins.values()) {
-					client.termineEnregistrement();
-				}
 			}
 		}
 	}
@@ -132,18 +137,21 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		case Protocole.LAMPORT:
 			message += "Protocole: Lamport | ";
 			switch (tm) {
-			case Lamport.REQ:
-				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
+			case Protocole.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge
+						+ ") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitReq(
 						horloge, idEnvoi);
 				break;
-			case Lamport.ACK:
-				message += "Message: [" + idEnvoi + "]envoi ACK(" + horloge +") à[" + idDestination + "]";
+			case Protocole.ACK:
+				message += "Message: [" + idEnvoi + "]envoi ACK(" + horloge
+						+ ") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitAck(
 						horloge, idEnvoi);
 				break;
-			case Lamport.REL:
-				message += "Message: [" + idEnvoi + "]envoi REL(" + horloge +") à[" + idDestination + "]";
+			case Protocole.REL:
+				message += "Message: [" + idEnvoi + "]envoi REL(" + horloge
+						+ ") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitRel(
 						horloge, idEnvoi);
 				break;
@@ -155,13 +163,15 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		case Protocole.SUZUKIKASAMI:
 			message += "Protocole: SuzukiKasami | ";
 			switch (tm) {
-			case SuzukiKasami.REQ:
-				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
+			case Protocole.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge
+						+ ") à[" + idDestination + "]";
 				((ISuzukiKasami) liste_voisins.get(idDestination)).recoitReq(
 						horloge, idEnvoi);
 				break;
-			case SuzukiKasami.MSGJETON:
-				message += "Message: [" + idEnvoi + "]envoi MSGJETON à[" + idDestination + "]";
+			case Protocole.MSGJETON:
+				message += "Message: [" + idEnvoi + "]envoi MSGJETON à["
+						+ idDestination + "]";
 				((ISuzukiKasami) liste_voisins.get(idDestination))
 						.recoitMsgJeton(jeton, idEnvoi);
 				break;
@@ -172,14 +182,18 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 			break;
 		case Protocole.NAIMITREHEL:
 			message += "Protocole: NaimiTrehel | ";
-			switch(tm){
-			case NaimiTrehel.REQ:
-				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
-				((INaimiTrehel) liste_voisins.get(idDestination)).recoitReq(horloge, idEnvoi);
+			switch (tm) {
+			case Protocole.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge
+						+ ") à[" + idDestination + "]";
+				((INaimiTrehel) liste_voisins.get(idDestination)).recoitReq(
+						horloge, idEnvoi);
 				break;
-			case NaimiTrehel.JETON:
-				message += "Message: [" + idEnvoi + "]envoi JETON à[" + idDestination + "]";
-				((INaimiTrehel) liste_voisins.get(idDestination)).recoitJeton(idEnvoi);
+			case Protocole.JETON:
+				message += "Message: [" + idEnvoi + "]envoi JETON à["
+						+ idDestination + "]";
+				((INaimiTrehel) liste_voisins.get(idDestination))
+						.recoitJeton(idEnvoi);
 				break;
 			default:
 				// traitement par defaut, si valeur incorrecte
@@ -187,15 +201,21 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 			}
 			break;
 		}
-		
+
 		log.log(message);
 	}
-	
-	public void receptionForme(int idEnvoi, Forme forme) throws IOException{
-		log.log("Réception d'une forme de[" + idEnvoi + "] : transmission aux clients");
-		
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see groupe.IGroupe#receptionForme(int, gui.Forme)
+	 */
+	public void receptionForme(int idEnvoi, Forme forme) throws IOException {
+		log.log("Réception d'une forme de[" + idEnvoi
+				+ "] : transmission aux clients");
+
 		for (int i = 0; i < liste_voisins.keySet().size(); i++) {
-			if(i != idEnvoi){
+			if (i != idEnvoi) {
 				liste_voisins.get(i).transmissionForme(forme);
 			}
 		}

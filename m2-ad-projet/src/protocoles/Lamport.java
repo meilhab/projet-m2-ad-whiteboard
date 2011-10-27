@@ -12,17 +12,38 @@ import javax.swing.SwingUtilities;
 
 import log.LogManager;
 
+/**
+ * Implémentation du protocole de Lamport
+ * 
+ * @author Benoit Meilhac
+ * @author Colin Michoudet
+ */
 public class Lamport extends Protocole implements ILamport, IProtocole {
-	public static final int REQ = 0;
-	public static final int REL = 1;
-	public static final int ACK = 2;
 
 	private static final long serialVersionUID = 995286733645484409L;
 
+	/**
+	 * valeur de l'horloge locale
+	 */
 	private int horloge;
+
+	/**
+	 * tableau des valeurs des horloges des différents clients
+	 */
 	private int t_horloge[];
+
+	/**
+	 * tableau des états des différents clients
+	 */
 	private int t_message[];
 
+	/**
+	 * Constructeur
+	 * 
+	 * @param igroupe
+	 *            lien vers l'interface du groupe
+	 * @throws RemoteException
+	 */
 	public Lamport(IGroupe igroupe) throws RemoteException {
 		super();
 		horloge = 0;
@@ -32,11 +53,15 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 			t_horloge[i] = 0;
 			t_message[i] = -1;
 		}
-		enregistrementFini = false;
 
 		this.igroupe = igroupe;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.Protocole#demandeAcces()
+	 */
 	public void demandeAcces() throws InterruptedException, IOException {
 		demandeSCEnCours = true;
 		log.log("[" + idClient + "]" + "demande l'accès en section critique");
@@ -55,8 +80,8 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 					@Override
 					public void run() {
 						try {
-							Lamport.this.igroupe.receptionMessage(
-									LAMPORT, REQ, idClient, itemp, htemp, null);
+							Lamport.this.igroupe.receptionMessage(LAMPORT, REQ,
+									idClient, itemp, htemp, null);
 						} catch (IOException e) {
 							e.printStackTrace();
 						} catch (InterruptedException e) {
@@ -98,16 +123,43 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 				}
 			}
 		}
-		
+
 		sectionCritique();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.Protocole#sectionCritique()
+	 */
+	@SuppressWarnings("deprecation")
+	public void sectionCritique() throws IOException, InterruptedException {
+		log.log("[" + idClient + "]entre en section critique");
+
+		Date d = new Date();
+		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
+				+ d.getSeconds());
+
+		if (!listeForme.isEmpty()) {
+			System.out.println("Dessine la forme dessine !");
+			Forme forme = listeForme.remove(0);
+			tableauBlanc.canvas.delivreForme(forme);
+			igroupe.receptionForme(idClient, forme);
+		}
+
+		libereAcces();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.Protocole#libereAcces()
+	 */
 	public void libereAcces() throws IOException, InterruptedException {
 		demandeSCEnCours = false;
 		log.log("[" + idClient + "]sort de section critique");
 
 		horloge++;
-
 
 		final int htemp = horloge;
 		for (int i = 0; i < nbClients; i++) {
@@ -119,8 +171,8 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 					@Override
 					public void run() {
 						try {
-							Lamport.this.igroupe.receptionMessage(
-									LAMPORT, REL, idClient, itemp, htemp, null);
+							Lamport.this.igroupe.receptionMessage(LAMPORT, REL,
+									idClient, itemp, htemp, null);
 						} catch (IOException e) {
 							e.printStackTrace();
 						} catch (InterruptedException e) {
@@ -136,17 +188,26 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		t_horloge[idClient] = horloge;
 		t_message[idClient] = REL;
 
-		if(!listeForme.isEmpty()){
-			if(!demandeSCEnCours){
+		if (!listeForme.isEmpty()) {
+			if (!demandeSCEnCours) {
 				demandeAcces();
 			}
 		}
-		
-//		synchronized (this) {
-//			this.notify();
-//		}
+
+		// synchronized (this) {
+		// this.notify();
+		// }
 	}
 
+	/**
+	 * Extrait le plus grand nombre entre 2 entiers
+	 * 
+	 * @param nb1
+	 *            premier nombre à comparer
+	 * @param nb2
+	 *            deuxième nombre à comparer
+	 * @return le plus grand des deux nombres
+	 */
 	public int max(int nb1, int nb2) {
 		if (nb1 < nb2) {
 			return nb2;
@@ -154,34 +215,15 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		return nb1;
 	}
 
-	@SuppressWarnings("deprecation")
-	public void sectionCritique() throws IOException, InterruptedException{
-		/**
-		 * Entrée en section critique
-		 */
-		log.log("[" + idClient + "]entre en section critique");
-
-		/**
-		 * Sortie immédiate pour tester
-		 */
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
-		
-		if(!listeForme.isEmpty()){
-			System.out.println("Dessine la forme dessine !");
-			Forme forme = listeForme.remove(0);
-			tableauBlanc.canvas.delivreForme(forme);
-			igroupe.receptionForme(idClient, forme);
-		}
-
-		libereAcces();
-	}
-	
 	/**********************
 	 * RMI implémentations*
 	 **********************/
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.ILamport#recoitReq(int, int)
+	 */
 	public synchronized void recoitReq(int horloge, int idClient)
 			throws IOException, InterruptedException, RemoteException {
 		log.log("[" + this.idClient + "]recoit REQ(" + horloge + ") de" + "["
@@ -214,9 +256,14 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		// igroupe.receptionMessage(LAMPORT, ACK, this.idClient, idClient,
 		// this.horloge, null);
 
-//		this.notify();
+		// this.notify();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.ILamport#recoitAck(int, int)
+	 */
 	public synchronized void recoitAck(int horloge, int idClient)
 			throws IOException, RemoteException {
 		log.log("[" + this.idClient + "]recoit ACK(" + horloge + ") de" + "["
@@ -230,6 +277,11 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.ILamport#recoitRel(int, int)
+	 */
 	public synchronized void recoitRel(int horloge, int idClient)
 			throws IOException, RemoteException {
 		log.log("[" + this.idClient + "]recoit REL(" + horloge + ") de" + "["
@@ -241,38 +293,43 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		this.notify();
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#attributionIdClient(int)
+	 */
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#recuperationIdClient()
+	 */
 	public int recuperationIdClient() throws RemoteException {
 		return idClient;
 	}
 
-	@Override
-	public void termineEnregistrement() throws RemoteException {
-		enregistrementFini = true;
-	}
-
-	@Override
-	public void miseEnAttenteEnregistrement() throws RemoteException {
-		enregistrementFini = false;
-	}
-
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#lancerGUI()
+	 */
 	public void lancerGUI() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				tableauBlanc = new TableauBlancUI(idClient + "",
-						Lamport.this);
+				tableauBlanc = new TableauBlancUI(idClient + "", Lamport.this);
 			}
 		});
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
+	 */
 	public void transmissionForme(Forme forme) throws RemoteException {
 		tableauBlanc.canvas.delivreForme(forme);
 	}

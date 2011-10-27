@@ -12,35 +12,41 @@ import javax.swing.SwingUtilities;
 
 import log.LogManager;
 
+/**
+ * Implémentation du protocole de Naimi-Trehel
+ * 
+ * @author Benoit Meilhac
+ * @author Colin Michoudet
+ */
 public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 
 	private static final long serialVersionUID = -7741580523855159132L;
 
-	public static final int REQ = 0;
-	public static final int JETON = 1;
 	/**
-	 * Identifiant du site supposé posseder le jeton
+	 * identifiant du client supposé posséder le jeton
 	 */
 	public int owner;
 
 	/**
-	 * Identifiant du site a qu envoyer le jeton, initialisé a -1 (nil)
+	 * identifiant du client à qui envoyer le jeton
 	 */
 	public int next;
 
 	/**
-	 * Boolean indiquant si le site possede le jeton, initialise a faux
+	 * booléen indiquant si le client possède le jeton
 	 */
 	public boolean tocken;
 
 	/**
-	 * Boolean indiquant si le site a demande la SC, initialise a faux
+	 * booléen indiquant si le client a demandé la section critique
 	 */
 	public boolean requesting;
 
 	/**
+	 * Constructeur
 	 * 
-	 * @param idClient
+	 * @param igroupe
+	 *            lien vers l'interface du groupe
 	 * @throws RemoteException
 	 */
 	public NaimiTrehel(IGroupe igroupe) throws RemoteException {
@@ -52,8 +58,10 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		this.igroupe = igroupe;
 	}
 
-	/**
-	 * Donne le jeton au proc elu, indique le owner aux autres.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.INaimiTrehel#initialisation(int)
 	 */
 	public void initialisation(int electednode) throws RemoteException {
 		if (idClient == electednode) {
@@ -64,10 +72,10 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		}
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @see protocoles.Protocole#demandeAcces()
 	 */
 	public void demandeAcces() throws IOException, InterruptedException {
 		demandeSCEnCours = true;
@@ -112,13 +120,13 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		sectionCritique();
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @see protocoles.Protocole#sectionCritique()
 	 */
 	@SuppressWarnings("deprecation")
-	private void sectionCritique() throws IOException, InterruptedException {
+	public void sectionCritique() throws IOException, InterruptedException {
 		/**
 		 * Entrée en section critique
 		 */
@@ -141,7 +149,57 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		libereAcces();
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.Protocole#libereAcces()
+	 */
+	public void libereAcces() throws IOException, InterruptedException {
+		demandeSCEnCours = false;
+
+		log.log("[" + idClient + "]Sortie de SC");
+		requesting = false;
+		if (next != -1) {
+			log.log("[" + idClient + "]envoi JETON à[" + next + "]");
+
+			final int idtemp = next;
+			Thread th = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						NaimiTrehel.this.igroupe.receptionMessage(NAIMITREHEL,
+								JETON, NaimiTrehel.this.idClient, idtemp, -1,
+								null);
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			th.start();
+			// voisins[next].recoitJeton();
+
+			tocken = false;
+			next = -1;
+		}
+
+		if (!listeForme.isEmpty()) {
+			if (!demandeSCEnCours) {
+				demandeAcces();
+			}
+		}
+	}
+
+	/**********************
+	 * RMI implémentations*
+	 **********************/
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.INaimiTrehel#recoitReq(int, int)
+	 */
 	public synchronized void recoitReq(int idRequester, int idSender)
 			throws IOException, RemoteException {
 		log.log("[" + idClient + "]recoit REQ(" + idRequester + ") de["
@@ -200,78 +258,41 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		owner = idRequester;
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.INaimiTrehel#recoitJeton(int)
+	 */
 	public synchronized void recoitJeton(int idClient) throws IOException {
 		log.log("[" + this.idClient + "]recoit JETON de[" + idClient + "]");
 		tocken = true;
 		this.notify();
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @see protocoles.IProtocole#attributionIdClient(int)
 	 */
-	public synchronized void libereAcces() throws IOException,
-			InterruptedException {
-		demandeSCEnCours = false;
-
-		log.log("[" + idClient + "]Sortie de SC");
-		requesting = false;
-		if (next != -1) {
-			log.log("[" + idClient + "]envoi JETON à[" + next + "]");
-
-			final int idtemp = next;
-			Thread th = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						NaimiTrehel.this.igroupe.receptionMessage(NAIMITREHEL,
-								JETON, NaimiTrehel.this.idClient, idtemp, -1,
-								null);
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			th.start();
-			// voisins[next].recoitJeton();
-
-			tocken = false;
-			next = -1;
-		}
-
-		if (!listeForme.isEmpty()) {
-			if (!demandeSCEnCours) {
-				demandeAcces();
-			}
-		}
-	}
-
-	@Override
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#recuperationIdClient()
+	 */
 	public int recuperationIdClient() throws RemoteException {
 		return this.idClient;
 	}
 
-	@Override
-	public void termineEnregistrement() throws RemoteException {
-		enregistrementFini = true;
-	}
-
-	@Override
-	public void miseEnAttenteEnregistrement() throws RemoteException {
-		enregistrementFini = false;
-	}
-
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#lancerGUI()
+	 */
 	public void lancerGUI() throws RemoteException {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -281,7 +302,11 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		});
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
+	 */
 	public void transmissionForme(Forme forme) throws RemoteException {
 		tableauBlanc.canvas.delivreForme(forme);
 	}
