@@ -22,7 +22,7 @@ public class LanceurGroupe {
 			Registry registry = null;
 			registry = LocateRegistry.createRegistry(2222);
 			registry.rebind("groupe", serveur);
-			System.out.println("Groupe ready!");
+			System.out.println("Groupe prêt!");
 			
 			while(registry.list().length - 1 != 5){
 				System.out.println("nb process " + (registry.list().length - 1));

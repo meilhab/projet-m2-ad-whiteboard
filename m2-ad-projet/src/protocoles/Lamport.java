@@ -32,13 +32,11 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 			t_horloge[i] = 0;
 			t_message[i] = -1;
 		}
-		log = new LogManager(LogManager.PROTOCOLE);
 		enregistrementFini = false;
 
 		this.igroupe = igroupe;
 	}
 
-	@SuppressWarnings("deprecation")
 	public void demandeAcces() throws InterruptedException, IOException {
 		demandeSCEnCours = true;
 		log.log("[" + idClient + "]" + "demande l'accès en section critique");
@@ -100,27 +98,8 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 				}
 			}
 		}
-		/**
-		 * Entrée en section critique
-		 */
-		log.log("[" + idClient + "]entre en section critique");
-
-		/**
-		 * Sortie immédiate pour tester
-		 */
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
 		
-		if(!listeForme.isEmpty()){
-			System.out.println("Dessine la forme dessine !");
-			Forme forme = listeForme.remove(0);
-			tableauBlanc.canvas.delivreForme(forme);
-			igroupe.receptionForme(idClient, forme);
-		}
-
-		libereAcces();
-
+		sectionCritique();
 	}
 
 	public void libereAcces() throws IOException, InterruptedException {
@@ -175,6 +154,30 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		return nb1;
 	}
 
+	@SuppressWarnings("deprecation")
+	public void sectionCritique() throws IOException, InterruptedException{
+		/**
+		 * Entrée en section critique
+		 */
+		log.log("[" + idClient + "]entre en section critique");
+
+		/**
+		 * Sortie immédiate pour tester
+		 */
+		Date d = new Date();
+		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
+				+ d.getSeconds());
+		
+		if(!listeForme.isEmpty()){
+			System.out.println("Dessine la forme dessine !");
+			Forme forme = listeForme.remove(0);
+			tableauBlanc.canvas.delivreForme(forme);
+			igroupe.receptionForme(idClient, forme);
+		}
+
+		libereAcces();
+	}
+	
 	/**********************
 	 * RMI implémentations*
 	 **********************/
@@ -241,6 +244,7 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	@Override
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
+		log = new LogManager(LogManager.PROTOCOLE, idClient);
 	}
 
 	@Override

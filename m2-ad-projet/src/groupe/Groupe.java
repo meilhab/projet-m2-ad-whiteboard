@@ -12,9 +12,11 @@ import java.util.Random;
 import log.LogManager;
 
 import protocoles.ILamport;
+import protocoles.INaimiTrehel;
 import protocoles.IProtocole;
 import protocoles.ISuzukiKasami;
 import protocoles.Lamport;
+import protocoles.NaimiTrehel;
 import protocoles.Protocole;
 import protocoles.SuzukiKasami;
 
@@ -26,12 +28,9 @@ import protocoles.SuzukiKasami;
  * @author Colin Michoudet
  */
 public class Groupe extends UnicastRemoteObject implements IGroupe {
-	// TODO : attention attribution des numéro dans la map a revoir ? notamment
-	// si plusieurs partent et reviennent ---> partiellement fini : à vérifier
-	// modulo 5 a prendre en compte ? vérification si pas déjà attribué
+
 	private static final long serialVersionUID = 6377970808899923007L;
 
-	// private ILamport voisins[];
 	private HashMap<Integer, IProtocole> liste_voisins;
 	private static int nbClientsTotal = 5;
 	private LogManager log;
@@ -43,9 +42,8 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 */
 	public Groupe() throws RemoteException {
 		super();
-		// voisins = new ILamport[nbClientsTotal];
 		liste_voisins = new HashMap<Integer, IProtocole>(nbClientsTotal);
-		log = new LogManager(LogManager.GROUPE);
+		log = new LogManager(LogManager.GROUPE, -1);
 	}
 
 	/**
@@ -78,13 +76,14 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	public synchronized void enregistrementClient(IProtocole ip)
 			throws IOException, NotBoundException {
 		log.log("Demande d'enregistrement client");
+		
 		int taille = liste_voisins.size();
 		if (taille == nbClientsTotal) {
 			log.log("\tNon traîtée : liste de participants pleine");
 		} else if (taille < nbClientsTotal) {
 			int numClient = getNumClient();
 			log.log("\tTraîtement en cours : enregistrement client" + numClient);
-			// voisins[nbClientsEnregistres] = ip;
+			
 			liste_voisins.put(numClient, ip);
 			ip.attributionIdClient(numClient);
 
@@ -123,31 +122,30 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	public void receptionMessage(int tp, int tm, int idEnvoi,
 			int idDestination, int horloge, int jeton[]) throws IOException,
 			InterruptedException {
-		// TODO : voir pour mettre sleep dans chaque étape des for ? nécessaire
-		// ??
-
 		Random r = new Random();
 		// entre 1s et 3s
 		int valeur = 1000 + r.nextInt(3000 - 1000);
 		Thread.sleep(valeur);
 
+		String message = "";
 		switch (tp) {
 		case Protocole.LAMPORT:
+			message += "Protocole: Lamport | ";
 			switch (tm) {
 			case Lamport.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitReq(
 						horloge, idEnvoi);
-				// voisins[idDestination].recoitReq(horloge, idEnvoi);
 				break;
 			case Lamport.ACK:
+				message += "Message: [" + idEnvoi + "]envoi ACK(" + horloge +") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitAck(
 						horloge, idEnvoi);
-				// voisins[idDestination].recoitAck(horloge, idEnvoi);
 				break;
 			case Lamport.REL:
+				message += "Message: [" + idEnvoi + "]envoi REL(" + horloge +") à[" + idDestination + "]";
 				((ILamport) liste_voisins.get(idDestination)).recoitRel(
 						horloge, idEnvoi);
-				// voisins[idDestination].recoitRel(horloge, idEnvoi);
 				break;
 			default:
 				// traitement par defaut, si valeur incorrecte
@@ -155,12 +153,15 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 			}
 			break;
 		case Protocole.SUZUKIKASAMI:
+			message += "Protocole: SuzukiKasami | ";
 			switch (tm) {
 			case SuzukiKasami.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
 				((ISuzukiKasami) liste_voisins.get(idDestination)).recoitReq(
 						horloge, idEnvoi);
 				break;
 			case SuzukiKasami.MSGJETON:
+				message += "Message: [" + idEnvoi + "]envoi MSGJETON à[" + idDestination + "]";
 				((ISuzukiKasami) liste_voisins.get(idDestination))
 						.recoitMsgJeton(jeton, idEnvoi);
 				break;
@@ -170,11 +171,29 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 			}
 			break;
 		case Protocole.NAIMITREHEL:
+			message += "Protocole: NaimiTrehel | ";
+			switch(tm){
+			case NaimiTrehel.REQ:
+				message += "Message: [" + idEnvoi + "]envoi REQ(" + horloge +") à[" + idDestination + "]";
+				((INaimiTrehel) liste_voisins.get(idDestination)).recoitReq(horloge, idEnvoi);
+				break;
+			case NaimiTrehel.JETON:
+				message += "Message: [" + idEnvoi + "]envoi JETON à[" + idDestination + "]";
+				((INaimiTrehel) liste_voisins.get(idDestination)).recoitJeton(idEnvoi);
+				break;
+			default:
+				// traitement par defaut, si valeur incorrecte
+				break;
+			}
 			break;
 		}
+		
+		log.log(message);
 	}
 	
-	public void receptionForme(int idEnvoi, Forme forme) throws RemoteException{
+	public void receptionForme(int idEnvoi, Forme forme) throws IOException{
+		log.log("Réception d'une forme de[" + idEnvoi + "] : transmission aux clients");
+		
 		for (int i = 0; i < liste_voisins.keySet().size(); i++) {
 			if(i != idEnvoi){
 				liste_voisins.get(i).transmissionForme(forme);

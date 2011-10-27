@@ -29,7 +29,6 @@ public abstract class Protocole extends UnicastRemoteObject {
 	protected Protocole() throws RemoteException {
 		super();
 		listeForme = new ArrayList<Forme>();
-		log = new LogManager(LogManager.PROTOCOLE);
 		enregistrementFini = false;
 	}
 

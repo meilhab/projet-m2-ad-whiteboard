@@ -10,6 +10,8 @@ import java.util.Date;
 
 import javax.swing.SwingUtilities;
 
+import log.LogManager;
+
 /**
  * Implémentation du protocole de Suzuki-Kasami
  * 
@@ -283,6 +285,7 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	@Override
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
+		log = new LogManager(LogManager.PROTOCOLE, idClient);
 	}
 
 	/*

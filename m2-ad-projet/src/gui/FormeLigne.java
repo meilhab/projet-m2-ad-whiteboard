@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 /**
  * Implementation de Forme pour le dessin d'une ligne.
  */
+@SuppressWarnings("serial")
 public class FormeLigne extends Forme{
 
 	/**

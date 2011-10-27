@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 /**
  * Implementation de Forme pour le dessin d'un rectangle.
  */
+@SuppressWarnings("serial")
 public class FormeRectangle extends Forme {
 	/**
 	 * Constructeur.
