@@ -9,13 +9,14 @@ import java.rmi.server.UnicastRemoteObject;
 import groupe.IGroupe;
 import protocoles.IProtocole;
 import protocoles.Lamport;
+import protocoles.NaimiTrehel;
 import protocoles.Protocole;
 import protocoles.SuzukiKasami;
 
 public class LanceurClient extends UnicastRemoteObject {
 
 	private static final long serialVersionUID = 4654809517720937785L;
-	
+
 	private IProtocole iprotocole;
 	private IGroupe igroupe;
 	private Protocole protocole;
@@ -24,8 +25,8 @@ public class LanceurClient extends UnicastRemoteObject {
 
 	}
 
-	private void connexionGroupe(String nomGroupe)
-			throws RemoteException, NotBoundException, MalformedURLException {
+	private void connexionGroupe(String nomGroupe) throws RemoteException,
+			NotBoundException, MalformedURLException {
 		igroupe = (IGroupe) Naming.lookup("rmi://localhost:2222/groupe");
 	}
 
@@ -36,42 +37,47 @@ public class LanceurClient extends UnicastRemoteObject {
 			} else if (typeProtocole.equalsIgnoreCase("SuzukiKasami")) {
 				iprotocole = new SuzukiKasami(igroupe);
 			} else {
-				// ip = new NaimiTrehel(idClient);
+				iprotocole = new NaimiTrehel(igroupe);
 			}
 		}
 	}
 
-	private void connexionProtocole2Groupe(String typeProtocole) throws IOException, NotBoundException {
+	private void connexionProtocole2Groupe(String typeProtocole)
+			throws IOException, NotBoundException {
 		igroupe.enregistrementClient(iprotocole);
-		Naming.rebind("rmi://localhost:2222/client" + iprotocole.recuperationIdClient(), iprotocole);
-		
+		Naming.rebind(
+				"rmi://localhost:2222/client"
+						+ iprotocole.recuperationIdClient(), iprotocole);
+
 		if (typeProtocole.equalsIgnoreCase("Lamport")) {
 			protocole = (Lamport) iprotocole;
 		} else if (typeProtocole.equalsIgnoreCase("SuzukiKasami")) {
 			protocole = (SuzukiKasami) iprotocole;
 			((SuzukiKasami) protocole).initialisation();
 		} else {
-			// protocole = (NaimiTrehel) iprotocole;
+			protocole = (NaimiTrehel) iprotocole;
+			((NaimiTrehel) protocole).initialisation(0);
 		}
-		
+
 	}
-	
-	public int getId() throws RemoteException{
+
+	public int getId() throws RemoteException {
 		return iprotocole.recuperationIdClient();
 	}
-	
-	public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
-		/*if (args.length != 3) {
-			System.err
-					.println("Usage LanceurClient : java lanceur.LanceurClient typeProtocole nomGroupe portGroupe");
-			System.exit(0);
-		}*/
+
+	public static void main(String[] args) throws NotBoundException,
+			IOException, InterruptedException {
+		/*
+		 * if (args.length != 3) { System.err .println(
+		 * "Usage LanceurClient : java lanceur.LanceurClient typeProtocole nomGroupe portGroupe"
+		 * ); System.exit(0); }
+		 */
 
 		String typeProtocole = args[0];
-		//String nomGroupe = args[1];
-		//int portGroupe = Integer.parseInt(args[2]);
+		// String nomGroupe = args[1];
+		// int portGroupe = Integer.parseInt(args[2]);
 		String nomGroupe = "rmi://localhost:2222/groupe";
-		
+
 		LanceurClient lc = new LanceurClient(typeProtocole);
 
 		lc.connexionGroupe(nomGroupe);

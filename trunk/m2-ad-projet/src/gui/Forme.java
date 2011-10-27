@@ -12,6 +12,7 @@ import java.io.Serializable;
  * 
  * 
  */
+@SuppressWarnings("serial")
 public abstract class Forme implements Serializable {
 	/** Le premier point de la forme. */
 	protected Point p1 = null;

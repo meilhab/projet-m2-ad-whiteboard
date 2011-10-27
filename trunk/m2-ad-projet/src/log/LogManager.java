@@ -21,13 +21,17 @@ public class LogManager {
 	 * @param type
 	 *            type du gestionnaire de logs (groupe/protocole)
 	 */
-	public LogManager(int type) {
+	public LogManager(int type, int idClient) {
 		switch (type) {
 		case GROUPE:
 			nomFichier = "logGroupe.txt";
 			break;
 		case PROTOCOLE:
-			nomFichier = "logProtocole.txt";
+			if(idClient == -1){
+				nomFichier = "logProtocole.txt";
+			} else {
+				nomFichier = "logProtocole" + idClient + ".txt";
+			}
 			break;
 		default:
 			// type incorrect : lancer exception ?

@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 /**
  * Implementation de Forme pour le dessin d'un oval.
  */
+@SuppressWarnings("serial")
 public class FormeOvale extends Forme{
 
 	/**

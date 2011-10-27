@@ -3,6 +3,7 @@ package gui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+@SuppressWarnings("serial")
 public class FormePixel extends Forme {
 
 	public FormePixel(Color bg, Color fg, float trait) {

@@ -20,8 +20,6 @@ import javax.swing.SpinnerNumberModel;
 
 import protocoles.Protocole;
 
-import lanceur.LanceurClient;
-
 /**
  * L'interface utilisateur pour le tableau blanc.
  */

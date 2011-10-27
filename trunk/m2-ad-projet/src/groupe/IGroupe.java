@@ -57,5 +57,5 @@ public interface IGroupe extends Remote {
 			int idDestination, int horloge, int jeton[]) throws IOException,
 			InterruptedException;
 	
-	public void receptionForme(int idEnvoi, Forme forme) throws RemoteException;
+	public void receptionForme(int idEnvoi, Forme forme) throws RemoteException, IOException;
 }
