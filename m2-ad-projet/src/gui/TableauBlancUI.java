@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -16,6 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+
+import protocoles.Protocole;
+
+import lanceur.LanceurClient;
 
 /**
  * L'interface utilisateur pour le tableau blanc.
@@ -44,13 +49,16 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 	protected Color fg = Color.BLACK;
 	/** Le trait courant. */
 	protected JSpinner spinnerTrait;
+	private Protocole protocole;
 
 	/**
 	 * Constructeur.
 	 */
-	public TableauBlancUI() {
-		super("Tableau blanc");
-
+	public TableauBlancUI(String numClient, Protocole protocole) {
+		super("Tableau blanc : client[" + numClient + "]");
+		
+		this.protocole = protocole;
+		
 		canvas = new TableauBlanc();
 
 		getContentPane().add(canvas, BorderLayout.CENTER);
@@ -73,8 +81,9 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 		boutons[1] = createButton(1, "/", "Dessiner une ligne");
 		boutons[2] = createButton(2, "[]", "Dessiner un carré");
 		boutons[3] = createButton(3, "()", "Dessiner une ellipse");
-		for (int i = 0; i < boutons.length; i++)
+		for (int i = 0; i < boutons.length; i++) {
 			sPanneau.add(boutons[i]);
+		}
 		panneau.add(sPanneau, BorderLayout.NORTH);
 		// les propriétées
 		JPanel sPanneau2 = new JPanel(new BorderLayout());
@@ -196,10 +205,15 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 		for (int i = 0; i < boutons.length; i++)
 			boutons[i].getModel().setEnabled(true);
 
+		try {
+			protocole.recuperationForme(forme);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 		// On devrais normalement passer par le groupe
 		// ici on court-circuite le groupe
 		// et on delivre directement la forme
-		canvas.delivreForme(forme);
+		/*canvas.delivreForme(forme);*/
 	}
 
 	class ActionForme extends AbstractAction {

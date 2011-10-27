@@ -1,0 +1,11 @@
+Demande d'enregistrement client
+	Traîtement en cours : enregistrement client
+Demande d'enregistrement client
+	Traîtement en cours : enregistrement client
+Demande d'enregistrement client
+	Traîtement en cours : enregistrement client
+Demande d'enregistrement client
+	Traîtement en cours : enregistrement client
+Demande d'enregistrement client
+	Traîtement en cours : enregistrement client
+	Fin des enregistrements : transmission aux clients

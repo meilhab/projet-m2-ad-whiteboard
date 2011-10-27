@@ -1,0 +1,27 @@
+[0]demande l'accès en section critique
+[0]envoi REQ(1) à 1
+[1]recoit REQ(1) de[0]
+[1]envoi ACK(2) à[0]
+[0]recoit ACK(2) de[1]
+[0]envoi REQ(3) à 2
+[1]demande l'accès en section critique
+[1]envoi REQ(3) à 0
+[0]recoit REQ(3) de[1]
+[0]envoi ACK(4) à[1]
+[2]recoit REQ(3) de[0]
+[2]envoi ACK(4) à[0]
+[2]demande l'accès en section critique
+[2]envoi REQ(5) à 0
+[1]recoit ACK(4) de[0]
+[1]envoi REQ(5) à 2
+[3]demande l'accès en section critique
+[3]envoi REQ(1) à 0
+[0]recoit REQ(5) de[2]
+[0]envoi ACK(6) à[2]
+[4]demande l'accès en section critique
+[4]envoi REQ(1) à 0
+[0]recoit REQ(1) de[4]
+[0]envoi ACK(7) à[4]
+[4]recoit ACK(7) de[0]
+[0]recoit REQ(1) de[3]
+[0]envoi ACK(8) à[3]

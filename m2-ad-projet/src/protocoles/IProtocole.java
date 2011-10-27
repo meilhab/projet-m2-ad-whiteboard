@@ -1,5 +1,7 @@
 package protocoles;
 
+import gui.Forme;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -43,4 +45,6 @@ public interface IProtocole extends Remote {
 
 	
 	public void lancerGUI() throws RemoteException;
+	
+	public void transmissionForme(Forme forme) throws RemoteException;
 }
