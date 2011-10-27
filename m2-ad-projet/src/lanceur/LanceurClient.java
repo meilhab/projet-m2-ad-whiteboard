@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Random;
 
 import javax.swing.SwingUtilities;
 
@@ -17,7 +18,7 @@ import protocoles.LamportNewTemp;
 import protocoles.Protocole;
 import protocoles.SuzukiKasami;
 
-public class LanceurClient extends UnicastRemoteObject implements ILanceurClient{
+public class LanceurClient extends UnicastRemoteObject {
 
 	private static final long serialVersionUID = 4654809517720937785L;
 	
@@ -47,7 +48,7 @@ public class LanceurClient extends UnicastRemoteObject implements ILanceurClient
 		}
 	}
 
-	private void connexionProtocole2Groupe(String typeProtocole) throws IOException {
+	private void connexionProtocole2Groupe(String typeProtocole) throws IOException, NotBoundException {
 		igroupe.enregistrementClient(iprotocole);
 		
 		if (typeProtocole.equalsIgnoreCase("Lamport")) {
@@ -61,16 +62,11 @@ public class LanceurClient extends UnicastRemoteObject implements ILanceurClient
 		
 	}
 	
-	@Override
-	public void lancerGUI(){
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new TableauBlancUI();
-			}
-		});
+	public int getId() throws RemoteException{
+		return iprotocole.recuperationIdClient();
 	}
 	
-	public static void main(String[] args) throws NotBoundException, IOException {
+	public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
 		if (args.length != 3) {
 			System.err
 					.println("Usage LanceurClient : java lanceur.LanceurClient typeProtocole nomGroupe portGroupe");
@@ -86,11 +82,6 @@ public class LanceurClient extends UnicastRemoteObject implements ILanceurClient
 		lc.connexionGroupe(nomGroupe, portGroupe);
 		lc.associeProtocole(typeProtocole);
 		lc.connexionProtocole2Groupe(typeProtocole);
-		
-		Registry registry = null;
-		registry = LocateRegistry.createRegistry(2222);
-		registry.rebind("rmi://localhost/lanceurclient", lc);
-		System.out.println("Attente du groupe...");
 	}
 
 }

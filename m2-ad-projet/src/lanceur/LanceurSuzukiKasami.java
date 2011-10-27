@@ -3,6 +3,7 @@ package lanceur;
 import groupe.IGroupe;
 
 import java.io.IOException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -20,12 +21,13 @@ public class LanceurSuzukiKasami {
 	
 	public static void main(String []args){
 		try {
-			Registry registry = LocateRegistry.getRegistry(2222);
-			IGroupe ig = (IGroupe) registry.lookup("rmi://localhost/groupe");
+			//Registry registry = LocateRegistry.getRegistry(2222);
+			IGroupe ig = (IGroupe) Naming.lookup("rmi://localhost:2222/groupe");
 
 			IProtocole lsk = new SuzukiKasami(ig);
 			
 			ig.enregistrementClient(lsk);
+			Naming.rebind("rmi://localhost:2222/client" + lsk.recuperationIdClient(), lsk);
 			
 			try {
 				Thread.sleep(10000);
@@ -34,6 +36,7 @@ public class LanceurSuzukiKasami {
 			}
 			
 			SuzukiKasami llsk = (SuzukiKasami) lsk;
+			System.out.println("------------>>" + llsk.recuperationIdClient());
 			llsk.initialisation();
 			llsk.demandeAcces();
 			
