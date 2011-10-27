@@ -1,8 +1,11 @@
 package groupe;
 
+import gui.Forme;
+
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 import protocoles.IProtocole;
 
@@ -53,4 +56,6 @@ public interface IGroupe extends Remote {
 	public void receptionMessage(int tp, int tm, int idEnvoi,
 			int idDestination, int horloge, int jeton[]) throws IOException,
 			InterruptedException;
+	
+	public void receptionForme(int idEnvoi, Forme forme) throws RemoteException;
 }

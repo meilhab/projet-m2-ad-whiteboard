@@ -2,19 +2,10 @@ package lanceur;
 
 import groupe.IGroupe;
 
-import java.io.IOException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Random;
 
-import protocoles.ILamport;
 import protocoles.IProtocole;
-import protocoles.ISuzukiKasami;
-import protocoles.Lamport;
-import protocoles.LamportNewTemp;
 import protocoles.SuzukiKasami;
 
 public class LanceurSuzukiKasami {
@@ -27,6 +18,7 @@ public class LanceurSuzukiKasami {
 			IProtocole lsk = new SuzukiKasami(ig);
 			
 			ig.enregistrementClient(lsk);
+			// enregistrement sur le port
 			Naming.rebind("rmi://localhost:2222/client" + lsk.recuperationIdClient(), lsk);
 			
 			try {

@@ -1,20 +1,14 @@
 package lanceur;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Random;
-
-import javax.swing.SwingUtilities;
-
-import groupe.Groupe;
 import groupe.IGroupe;
-import gui.TableauBlancUI;
 import protocoles.IProtocole;
-import protocoles.LamportNewTemp;
+import protocoles.Lamport;
 import protocoles.Protocole;
 import protocoles.SuzukiKasami;
 
@@ -30,16 +24,15 @@ public class LanceurClient extends UnicastRemoteObject {
 
 	}
 
-	private void connexionGroupe(String nomGroupe, int portGroupe)
-			throws RemoteException, NotBoundException {
-		Registry registry = LocateRegistry.getRegistry(portGroupe);
-		igroupe = (IGroupe) registry.lookup(nomGroupe);
+	private void connexionGroupe(String nomGroupe)
+			throws RemoteException, NotBoundException, MalformedURLException {
+		igroupe = (IGroupe) Naming.lookup("rmi://localhost:2222/groupe");
 	}
 
 	private void associeProtocole(String typeProtocole) throws RemoteException {
 		if (igroupe != null) {
 			if (typeProtocole.equalsIgnoreCase("Lamport")) {
-				iprotocole = new LamportNewTemp(igroupe);
+				iprotocole = new Lamport(igroupe);
 			} else if (typeProtocole.equalsIgnoreCase("SuzukiKasami")) {
 				iprotocole = new SuzukiKasami(igroupe);
 			} else {
@@ -50,9 +43,10 @@ public class LanceurClient extends UnicastRemoteObject {
 
 	private void connexionProtocole2Groupe(String typeProtocole) throws IOException, NotBoundException {
 		igroupe.enregistrementClient(iprotocole);
+		Naming.rebind("rmi://localhost:2222/client" + iprotocole.recuperationIdClient(), iprotocole);
 		
 		if (typeProtocole.equalsIgnoreCase("Lamport")) {
-			protocole = (LamportNewTemp) iprotocole;
+			protocole = (Lamport) iprotocole;
 		} else if (typeProtocole.equalsIgnoreCase("SuzukiKasami")) {
 			protocole = (SuzukiKasami) iprotocole;
 			((SuzukiKasami) protocole).initialisation();
@@ -67,19 +61,20 @@ public class LanceurClient extends UnicastRemoteObject {
 	}
 	
 	public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
-		if (args.length != 3) {
+		/*if (args.length != 3) {
 			System.err
 					.println("Usage LanceurClient : java lanceur.LanceurClient typeProtocole nomGroupe portGroupe");
 			System.exit(0);
-		}
+		}*/
 
 		String typeProtocole = args[0];
-		String nomGroupe = args[1];
-		int portGroupe = Integer.parseInt(args[2]);
-
+		//String nomGroupe = args[1];
+		//int portGroupe = Integer.parseInt(args[2]);
+		String nomGroupe = "rmi://localhost:2222/groupe";
+		
 		LanceurClient lc = new LanceurClient(typeProtocole);
 
-		lc.connexionGroupe(nomGroupe, portGroupe);
+		lc.connexionGroupe(nomGroupe);
 		lc.associeProtocole(typeProtocole);
 		lc.connexionProtocole2Groupe(typeProtocole);
 	}

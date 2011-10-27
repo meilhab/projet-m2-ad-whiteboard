@@ -5,13 +5,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.io.Serializable;
 
 /**
  * La classe Forme définit le contrat d'une forme à dessiner.
  * 
  * 
  */
-public abstract class Forme {
+public abstract class Forme implements Serializable {
 	/** Le premier point de la forme. */
 	protected Point p1 = null;
 	/** Le second point de la forme (optionnel). */

@@ -15,7 +15,7 @@ public class Lanceur {
 	public static final void main(String args[]) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new TableauBlancUI();
+				new TableauBlancUI("", null);
 			}
 		});
 	}

@@ -62,7 +62,6 @@ public class LanceurLamport {
 				try {
 					neighbors[i] = (ILamport) registry
 							.lookup(neighborsNames[i]);
-					neighbors[i].test(procNumber);
 				} catch (NotBoundException e) {
 					e.printStackTrace();
 				}

@@ -1,11 +1,10 @@
 package groupe;
 
+import gui.Forme;
+
 import java.io.IOException;
-import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Random;
@@ -172,6 +171,14 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 			break;
 		case Protocole.NAIMITREHEL:
 			break;
+		}
+	}
+	
+	public void receptionForme(int idEnvoi, Forme forme) throws RemoteException{
+		for (int i = 0; i < liste_voisins.keySet().size(); i++) {
+			if(i != idEnvoi){
+				liste_voisins.get(i).transmissionForme(forme);
+			}
 		}
 	}
 }

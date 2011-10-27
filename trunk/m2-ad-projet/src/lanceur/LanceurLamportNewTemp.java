@@ -7,7 +7,7 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 
 import protocoles.IProtocole;
-import protocoles.LamportNewTemp;
+import protocoles.Lamport;
 
 public class LanceurLamportNewTemp {
 
@@ -17,7 +17,7 @@ public class LanceurLamportNewTemp {
 			Registry registry = LocateRegistry.getRegistry(2222);
 			IGroupe ig = (IGroupe) registry.lookup("rmi://localhost/groupe");
 
-			IProtocole lp = new LamportNewTemp(ig);
+			IProtocole lp = new Lamport(ig);
 			ig.enregistrementClient(lp);
 			
 			try {
@@ -26,7 +26,7 @@ public class LanceurLamportNewTemp {
 				e.printStackTrace();
 			}
 			
-			LamportNewTemp llp = (LamportNewTemp) lp;
+			Lamport llp = (Lamport) lp;
 			llp.demandeAcces();
 			
 			while(true){
