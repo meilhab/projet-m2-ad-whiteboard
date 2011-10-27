@@ -41,4 +41,6 @@ public interface IProtocole extends Remote {
 	 */
 	public void miseEnAttenteEnregistrement() throws RemoteException;
 
+	
+	public void lancerGUI() throws RemoteException;
 }

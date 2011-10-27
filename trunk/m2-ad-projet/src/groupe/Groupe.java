@@ -1,10 +1,15 @@
 package groupe;
 
 import java.io.IOException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Random;
+
 import log.LogManager;
 
 import protocoles.ILamport;
@@ -72,15 +77,15 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 */
 	@Override
 	public synchronized void enregistrementClient(IProtocole ip)
-			throws IOException {
+			throws IOException, NotBoundException {
 		log.log("Demande d'enregistrement client");
 		int taille = liste_voisins.size();
 		if (taille == nbClientsTotal) {
 			log.log("\tNon traîtée : liste de participants pleine");
 		} else if (taille < nbClientsTotal) {
-			log.log("\tTraîtement en cours : enregistrement client");
-			// voisins[nbClientsEnregistres] = ip;
 			int numClient = getNumClient();
+			log.log("\tTraîtement en cours : enregistrement client" + numClient);
+			// voisins[nbClientsEnregistres] = ip;
 			liste_voisins.put(numClient, ip);
 			ip.attributionIdClient(numClient);
 

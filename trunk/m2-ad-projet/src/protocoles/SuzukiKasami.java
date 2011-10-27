@@ -1,10 +1,13 @@
 package protocoles;
 
 import groupe.IGroupe;
+import gui.TableauBlancUI;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Date;
+
+import javax.swing.SwingUtilities;
 
 import log.LogManager;
 
@@ -28,6 +31,7 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	private int jeton[];
 	private LogManager log;
 	private IGroupe igroupe;
+	private TableauBlancUI tableauBlanc;
 
 	/**
 	 * Constructeur du protocole
@@ -250,5 +254,14 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	@Override
 	public void miseEnAttenteEnregistrement() throws RemoteException {
 		enregistrementFini = false;
+	}
+	
+	@Override
+	public void lancerGUI(){
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				tableauBlanc = new TableauBlancUI();
+			}
+		});
 	}
 }

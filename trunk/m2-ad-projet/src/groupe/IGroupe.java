@@ -1,6 +1,7 @@
 package groupe;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 
 import protocoles.IProtocole;
@@ -19,8 +20,9 @@ public interface IGroupe extends Remote {
 	 * @param ip
 	 *            client demandant l'enregistrement
 	 * @throws IOException
+	 * @throws NotBoundException 
 	 */
-	public void enregistrementClient(IProtocole ip) throws IOException;
+	public void enregistrementClient(IProtocole ip) throws IOException, NotBoundException;
 
 	/**
 	 * Suppression d'un client de la liste enregistrée
