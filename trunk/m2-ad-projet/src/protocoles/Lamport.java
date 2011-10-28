@@ -301,6 +301,7 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
+		log.initialisation();
 	}
 
 	/*

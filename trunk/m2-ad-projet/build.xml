@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="tb-demo" default="dist" basedir=".">
+<project name="whiteboard" default="genJar" basedir=".">
 	<target name="init">
 		<!-- location of the *.java files -->
 		<property name="srcPath" value="./src" />
@@ -10,9 +10,9 @@
 		<!-- location of the documentation -->
 		<property name="docPath" value="./doc" />
 		<!-- name of the final jar -->
-		<property name="jarFile" value="tb-demo.jar" />
+		<property name="jarFile" value="whiteboard.jar" />
 		<!-- name of the manifest file -->
-		<property name="manifestFile" value="tb-demo.manifest" />
+		<property name="manifestFile" value="whiteboard.manifest" />
 
 		<!-- sets the property "classPath.exists" to true when classPath exists -->
 		<condition property="classPath.exists">
@@ -68,7 +68,7 @@
 	</target>
 
 	<!-- Makes the jar file. -->
-	<target name="dist" depends="makeClass,makeDistPath">
+	<target name="genJar" depends="makeClass,makeDistPath">
 		<jar destfile="${distPath}/${jarFile}" compress="false" update="true" index="true" basedir="${classPath}" manifest="${manifestFile}" />
 	</target>
 
@@ -78,7 +78,7 @@
 			<link href="java.sun.com/j2se/1.5.0/docs/api/" />
 		</javadoc>
 	</target>
-	<target name="run" depends="dist">
+	<target name="run" depends="genJar">
 		<echo message=" -- running ${distPath}/${jarFile}" />
 		<java fork="true" failonerror="true" maxmemory="128m" jar="${distPath}/${jarFile}">
 		</java>

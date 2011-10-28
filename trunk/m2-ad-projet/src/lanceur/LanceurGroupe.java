@@ -34,9 +34,13 @@ public class LanceurGroupe {
 			System.out.println("Groupe prêt!");
 
 			// attente de présence des 5 clients
-			while (registry.list().length - 1 != 5) {
-				System.out
-						.println("nb process " + (registry.list().length - 1));
+			int nbEnCours = -1;
+			int nbProc;
+			while ((nbProc = registry.list().length - 1) != 5) {
+				if(nbEnCours != nbProc) {
+					System.out.println("nb process " + (nbProc));
+					nbEnCours = nbProc;
+				}
 				Thread.sleep(3000);
 			}
 

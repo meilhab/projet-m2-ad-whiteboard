@@ -1,5 +1,6 @@
 package log;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -30,17 +31,33 @@ public class LogManager {
 	public LogManager(int type, int idClient) {
 		switch (type) {
 		case GROUPE:
-			nomFichier = "logGroupe.txt";
+			nomFichier = "log/logGroupe.txt";
 			break;
 		case PROTOCOLE:
 			if (idClient == -1) {
-				nomFichier = "logProtocole.txt";
+				nomFichier = "log/logProtocole.txt";
 			} else {
-				nomFichier = "logProtocole" + idClient + ".txt";
+				nomFichier = "log/logProtocole" + idClient + ".txt";
 			}
 			break;
 		default:
 			// type incorrect : lancer exception ?
+		}
+	}
+
+	/**
+	 * Vérifie que le dossier de log existe ou non et supprime les fichiers qui
+	 * le composent
+	 */
+	public void initialisation() {
+		File dossier = new File("log");
+		if (!dossier.exists()) {
+			dossier.mkdir();
+		} else {
+			File fichier = new File(nomFichier);
+			if (fichier.exists()) {
+				fichier.delete();
+			}
 		}
 	}
 

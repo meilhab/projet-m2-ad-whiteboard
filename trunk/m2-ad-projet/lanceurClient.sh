@@ -4,11 +4,11 @@ if [ $# != 1 ] ; then
     exit
 fi
 
-gnome-terminal -t "Groupe" -e "bash -c 'java lanceur.LanceurGroupe; exec bash'" &
+gnome-terminal -t "Groupe" -e "bash -c 'java -cp whiteboard.jar lanceur.LanceurGroupe; exec bash'" &
 sleep 1
 
 for i in {0..4}
 do
-    gnome-terminal -t "Client [$i]" -e "bash -c 'java lanceur.LanceurClient ${1}; exec bash'" &
+    gnome-terminal -t "Client [$i]" -e "bash -c 'java -cp whiteboard.jar lanceur.LanceurClient ${1}; exec bash'" &
     sleep 1
 done
