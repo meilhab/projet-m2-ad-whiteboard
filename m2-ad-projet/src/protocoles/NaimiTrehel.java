@@ -277,6 +277,7 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
+		log.initialisation();
 	}
 
 	/*

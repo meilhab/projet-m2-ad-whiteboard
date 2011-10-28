@@ -53,6 +53,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		super();
 		liste_voisins = new HashMap<Integer, IProtocole>(nbClientsTotal);
 		log = new LogManager(LogManager.GROUPE, -1);
+		log.initialisation();
 	}
 
 	/**
