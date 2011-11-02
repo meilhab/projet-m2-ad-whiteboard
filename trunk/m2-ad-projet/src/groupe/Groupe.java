@@ -212,12 +212,12 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 * @see groupe.IGroupe#receptionForme(int, gui.Forme)
 	 */
 	public void receptionForme(int idEnvoi, Forme forme) throws IOException {
-		log.log("Réception d'une forme de[" + idEnvoi
+		log.log("Réception d'une forme : \""+ forme.toString() +"\" de[" + idEnvoi
 				+ "] : transmission aux clients");
 
 		for (int i = 0; i < liste_voisins.keySet().size(); i++) {
 			if (i != idEnvoi) {
-				liste_voisins.get(i).transmissionForme(forme);
+				liste_voisins.get(i).transmissionForme(forme, idEnvoi);
 			}
 		}
 	}

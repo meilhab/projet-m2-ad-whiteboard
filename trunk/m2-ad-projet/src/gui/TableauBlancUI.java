@@ -64,6 +64,7 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 
 		pack();
 		setVisible(true);
+		setLocation((Integer.parseInt(numClient) * (256 + (48*2) + (6*2))), 0);
 	}
 
 	/**

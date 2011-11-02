@@ -53,4 +53,11 @@ public class FormeLigne extends Forme{
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see gui.Forme#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ligne";
+	}
 }
