@@ -191,9 +191,9 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		}
 	}
 
-	/**********************
-	 * RMI implémentations*
-	 **********************/
+	//**********************
+	//* RMI implémentations*
+	//**********************
 
 	/*
 	 * (non-Javadoc)

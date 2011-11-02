@@ -207,9 +207,9 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 		}
 	}
 
-	/**********************
-	 * RMI implémentations*
-	 **********************/
+	//**********************
+	//* RMI implémentations*
+	//**********************
 
 	/*
 	 * (non-Javadoc)
