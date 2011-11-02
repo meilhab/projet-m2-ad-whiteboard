@@ -73,9 +73,9 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		return -1;
 	}
 
-	/**********************
-	 * RMI implémentations*
-	 **********************/
+	//**********************
+	//* RMI implémentations*
+	//**********************
 
 	/*
 	 * (non-Javadoc)

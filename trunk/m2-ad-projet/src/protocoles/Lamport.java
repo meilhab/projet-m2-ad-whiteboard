@@ -215,9 +215,9 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		return nb1;
 	}
 
-	/**********************
-	 * RMI implémentations*
-	 **********************/
+	//**********************
+	//* RMI implémentations*
+	//**********************
 
 	/*
 	 * (non-Javadoc)
