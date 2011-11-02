@@ -111,4 +111,12 @@ public abstract class Forme implements Serializable {
 	public void setPoint2(Point p2) {
 		this.p2 = p2;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "forme";
+	}
 }

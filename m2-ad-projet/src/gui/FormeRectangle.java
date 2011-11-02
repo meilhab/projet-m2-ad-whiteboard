@@ -59,4 +59,12 @@ public class FormeRectangle extends Forme {
 	public boolean aDeuxPoints() {
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see gui.Forme#toString()
+	 */
+	@Override
+	public String toString() {
+		return "rectangle";
+	}
 }

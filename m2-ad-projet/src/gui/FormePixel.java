@@ -26,4 +26,11 @@ public class FormePixel extends Forme {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see gui.Forme#toString()
+	 */
+	@Override
+	public String toString() {
+		return "point";
+	}
 }

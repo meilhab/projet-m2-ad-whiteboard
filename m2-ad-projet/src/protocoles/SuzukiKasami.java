@@ -325,7 +325,9 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
-	public void transmissionForme(Forme forme) {
+	public void transmissionForme(Forme forme, int idClient) throws IOException {
+		log.log("[" + this.idClient + "]recoit une forme : \"" + forme.toString() + "\" de[" + idClient + "]");
+		
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }

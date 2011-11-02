@@ -2,6 +2,7 @@ package protocoles;
 
 import gui.Forme;
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -41,7 +42,11 @@ public interface IProtocole extends Remote {
 	 * 
 	 * @param forme
 	 *            forme à transmettre
+	 * @param idClient
+	 *            identifiant du client envoyant la forme
 	 * @throws RemoteException
+	 * @throws IOException
 	 */
-	public void transmissionForme(Forme forme) throws RemoteException;
+	public void transmissionForme(Forme forme, int idClient)
+			throws RemoteException, IOException;
 }

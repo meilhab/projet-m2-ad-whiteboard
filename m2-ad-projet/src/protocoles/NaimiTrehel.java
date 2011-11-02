@@ -308,7 +308,9 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 	 * 
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
-	public void transmissionForme(Forme forme) throws RemoteException {
+	public void transmissionForme(Forme forme, int idClient) throws IOException {
+		log.log("[" + this.idClient + "]recoit une forme : \"" + forme.toString() + "\" de[" + idClient + "]");
+		
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }
