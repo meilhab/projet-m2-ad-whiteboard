@@ -22,11 +22,20 @@ public class LanceurGroupe {
 	 */
 	public static void main(String[] args) {
 
-		try {
+		// à changer au besoin si rajout de paramètres
+		if (args.length != 1) {
+			System.err.println("Usage: java lanceur.LanceurGroupe portGroupe");
+			System.exit(0);
+		}
 
-			int port = 2222;
+		try {
+			// variable passée en paramètre
+			int port = Integer.parseInt(args[0]);
+
+			// variable pouvant être passée en paramètre
 			String nom = "groupe";
 
+			// création du groupe et du registry
 			Groupe serveur = new Groupe();
 			Registry registry = null;
 			registry = LocateRegistry.createRegistry(port);
@@ -34,14 +43,11 @@ public class LanceurGroupe {
 			System.out.println("Groupe prêt!");
 
 			// attente de présence des 5 clients
-			int nbEnCours = -1;
-			int nbProc;
-			while ((nbProc = registry.list().length - 1) != 5) {
-				if(nbEnCours != nbProc) {
-					System.out.println("nb process " + (nbProc));
-					nbEnCours = nbProc;
-				}
+			System.out.println("Attente des clients");
+			int nbProc = registry.list().length - 1;
+			while (nbProc != 5) {
 				Thread.sleep(3000);
+				nbProc = registry.list().length - 1;
 			}
 
 			// une fois les 5 clients, on lance leur IHM
@@ -52,7 +58,6 @@ public class LanceurGroupe {
 					ip.lancerGUI();
 				}
 			}
-
 		} catch (Exception e) {
 			System.out.println("An exception has occurred!");
 			e.printStackTrace();

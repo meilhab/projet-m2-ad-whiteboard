@@ -6,8 +6,6 @@ import gui.TableauBlancUI;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Date;
-
 import javax.swing.SwingUtilities;
 
 import log.LogManager;
@@ -105,8 +103,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 
 					});
 					th.start();
-					// igroupe.receptionMessage(SUZUKIKASAMI, REQ, idClient, i,
-					// horloge, null);
 				}
 			}
 
@@ -128,21 +124,15 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * 
 	 * @see protocoles.Protocole#sectionCritique()
 	 */
-	@SuppressWarnings("deprecation")
 	public synchronized void sectionCritique() throws IOException,
 			InterruptedException {
-		/**
-		 * Entrée en section critique
-		 */
 		log.log("[" + this.idClient + "]entre en section critique");
 
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
-
 		if (!listeForme.isEmpty()) {
-			System.out.println("Dessine la forme dessine !");
 			Forme forme = listeForme.remove(0);
+			log.log("[" + idClient + "]transmet une forme : \""
+					+ forme.toString() + "\"");
+
 			tableauBlanc.canvas.delivreForme(forme);
 			igroupe.receptionForme(idClient, forme);
 		}
@@ -196,9 +186,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 
 			});
 			th.start();
-
-			// igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, idClient,
-			// valeurClient, -1, jeton);
 		}
 		if (!listeForme.isEmpty()) {
 			if (!demandeSCEnCours) {
@@ -207,9 +194,9 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 		}
 	}
 
-	//**********************
-	//* RMI implémentations*
-	//**********************
+	// **********************
+	// * RMI implémentations*
+	// **********************
 
 	/*
 	 * (non-Javadoc)
@@ -255,9 +242,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 				}
 			});
 			th.start();
-
-			// igroupe.receptionMessage(SUZUKIKASAMI, MSGJETON, this.idClient,
-			// idClient, -1, jeton);
 		}
 	}
 
@@ -294,7 +278,6 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
-		log.initialisation();
 	}
 
 	/*
@@ -326,8 +309,9 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
 	public void transmissionForme(Forme forme, int idClient) throws IOException {
-		log.log("[" + this.idClient + "]recoit une forme : \"" + forme.toString() + "\" de[" + idClient + "]");
-		
+		log.log("[" + this.idClient + "]recoit une forme : \""
+				+ forme.toString() + "\" de[" + idClient + "]");
+
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }
