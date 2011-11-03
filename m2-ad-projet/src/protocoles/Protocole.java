@@ -128,6 +128,5 @@ public abstract class Protocole extends UnicastRemoteObject {
 				e.printStackTrace();
 			}
 		}
-		// igroupe.receptionForme(idClient, forme);
 	}
 }

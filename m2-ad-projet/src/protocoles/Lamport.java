@@ -6,8 +6,6 @@ import gui.TableauBlancUI;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Date;
-
 import javax.swing.SwingUtilities;
 
 import log.LogManager;
@@ -90,8 +88,6 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 					}
 				});
 				th.start();
-				// igroupe.receptionMessage(LAMPORT, REQ, idClient, i, horloge,
-				// null);
 			}
 		}
 
@@ -132,17 +128,14 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	 * 
 	 * @see protocoles.Protocole#sectionCritique()
 	 */
-	@SuppressWarnings("deprecation")
 	public void sectionCritique() throws IOException, InterruptedException {
 		log.log("[" + idClient + "]entre en section critique");
 
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
-
 		if (!listeForme.isEmpty()) {
-			System.out.println("Dessine la forme dessine !");
 			Forme forme = listeForme.remove(0);
+			log.log("[" + idClient + "]transmet une forme : \""
+					+ forme.toString() + "\"");
+
 			tableauBlanc.canvas.delivreForme(forme);
 			igroupe.receptionForme(idClient, forme);
 		}
@@ -181,8 +174,6 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 					}
 				});
 				th.start();
-				// igroupe.receptionMessage(LAMPORT, REL, idClient, i, horloge,
-				// null);
 			}
 		}
 		t_horloge[idClient] = horloge;
@@ -193,10 +184,6 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 				demandeAcces();
 			}
 		}
-
-		// synchronized (this) {
-		// this.notify();
-		// }
 	}
 
 	/**
@@ -215,9 +202,9 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		return nb1;
 	}
 
-	//**********************
-	//* RMI implémentations*
-	//**********************
+	// **********************
+	// * RMI implémentations*
+	// **********************
 
 	/*
 	 * (non-Javadoc)
@@ -252,11 +239,6 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 			}
 		});
 		th.start();
-
-		// igroupe.receptionMessage(LAMPORT, ACK, this.idClient, idClient,
-		// this.horloge, null);
-
-		// this.notify();
 	}
 
 	/*
@@ -273,8 +255,8 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 		if (t_message[idClient] != REQ) {
 			t_horloge[idClient] = horloge;
 			t_message[idClient] = ACK;
-			this.notify();
 		}
+		this.notify();
 	}
 
 	/*
@@ -301,7 +283,6 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
-		log.initialisation();
 	}
 
 	/*
@@ -332,8 +313,9 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
 	public void transmissionForme(Forme forme, int idClient) throws IOException {
-		log.log("[" + this.idClient + "]recoit une forme : \"" + forme.toString() + "\" de[" + idClient + "]");
-		
+		log.log("[" + this.idClient + "]recoit une forme : \""
+				+ forme.toString() + "\" de[" + idClient + "]");
+
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }

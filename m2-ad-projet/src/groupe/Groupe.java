@@ -53,7 +53,6 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		super();
 		liste_voisins = new HashMap<Integer, IProtocole>(nbClientsTotal);
 		log = new LogManager(LogManager.GROUPE, -1);
-		log.initialisation();
 	}
 
 	/**
@@ -157,7 +156,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 						horloge, idEnvoi);
 				break;
 			default:
-				// traitement par defaut, si valeur incorrecte
+				message += "Message de type inconnu non transmis";
 				break;
 			}
 			break;
@@ -177,7 +176,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 						.recoitMsgJeton(jeton, idEnvoi);
 				break;
 			default:
-				// traitement par defaut, si valeur incorrecte
+				message += "Message de type inconnu non transmis";
 				break;
 			}
 			break;
@@ -197,7 +196,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 						.recoitJeton(idEnvoi);
 				break;
 			default:
-				// traitement par defaut, si valeur incorrecte
+				message += "Message de type inconnu non transmis";
 				break;
 			}
 			break;

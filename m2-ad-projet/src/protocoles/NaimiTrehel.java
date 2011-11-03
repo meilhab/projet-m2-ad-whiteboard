@@ -6,8 +6,6 @@ import gui.TableauBlancUI;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Date;
-
 import javax.swing.SwingUtilities;
 
 import log.LogManager;
@@ -86,8 +84,6 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 			log.log("[" + idClient + "]envoi REQ(" + idClient + ") à[" + owner
 					+ "]");
 
-			// voisins[owner].recoitReq(idClient, idClient);
-
 			final int ownertemp = owner;
 			Thread th = new Thread(new Runnable() {
 				@Override
@@ -125,23 +121,14 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 	 * 
 	 * @see protocoles.Protocole#sectionCritique()
 	 */
-	@SuppressWarnings("deprecation")
 	public void sectionCritique() throws IOException, InterruptedException {
-		/**
-		 * Entrée en section critique
-		 */
 		log.log("[" + idClient + "]entre en section critique");
 
-		/**
-		 * Sortie immédiate pour tester
-		 */
-		Date d = new Date();
-		System.out.println(d.getHours() + " - " + d.getMinutes() + " - "
-				+ d.getSeconds());
-
 		if (!listeForme.isEmpty()) {
-			System.out.println("Dessine la forme dessine !");
 			Forme forme = listeForme.remove(0);
+			log.log("[" + idClient + "]transmet une forme : \""
+					+ forme.toString() + "\"");
+
 			tableauBlanc.canvas.delivreForme(forme);
 			igroupe.receptionForme(idClient, forme);
 		}
@@ -178,7 +165,6 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 				}
 			});
 			th.start();
-			// voisins[next].recoitJeton();
 
 			tocken = false;
 			next = -1;
@@ -191,9 +177,9 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 		}
 	}
 
-	//**********************
-	//* RMI implémentations*
-	//**********************
+	// **********************
+	// * RMI implémentations*
+	// **********************
 
 	/*
 	 * (non-Javadoc)
@@ -228,8 +214,6 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 					}
 				});
 				th.start();
-
-				// voisins[idRequester].recoitJeton();
 			}
 		} else {
 			log.log("[" + idClient + "]envoi REQ(" + idRequester + ") à["
@@ -252,7 +236,6 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 				}
 			});
 			th.start();
-			// voisins[owner].recoitReq(idRequester, idClient);
 		}
 
 		owner = idRequester;
@@ -277,7 +260,6 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 	public void attributionIdClient(int idClient) throws RemoteException {
 		this.idClient = idClient;
 		log = new LogManager(LogManager.PROTOCOLE, idClient);
-		log.initialisation();
 	}
 
 	/*
@@ -309,8 +291,9 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 	 * @see protocoles.IProtocole#transmissionForme(gui.Forme)
 	 */
 	public void transmissionForme(Forme forme, int idClient) throws IOException {
-		log.log("[" + this.idClient + "]recoit une forme : \"" + forme.toString() + "\" de[" + idClient + "]");
-		
+		log.log("[" + this.idClient + "]recoit une forme : \""
+				+ forme.toString() + "\" de[" + idClient + "]");
+
 		tableauBlanc.canvas.delivreForme(forme);
 	}
 }

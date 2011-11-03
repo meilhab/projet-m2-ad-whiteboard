@@ -110,23 +110,30 @@ public class LanceurClient extends UnicastRemoteObject {
 	 */
 	public static void main(String[] args) throws NotBoundException,
 			IOException, InterruptedException {
-		/*
-		 * if (args.length != 3) { System.err .println(
-		 * "Usage LanceurClient : java lanceur.LanceurClient typeProtocole nomGroupe portGroupe"
-		 * ); System.exit(0); }
-		 */
 
+		// à changer au besoin si rajout de paramètres
+		if (args.length != 2) {
+			System.err
+					.println("Usage: java lanceur.LanceurClient typeProtocole");
+			System.exit(0);
+		}
+
+		// variables passées en paramètre
 		String typeProtocole = args[0];
-		// String nomGroupe = args[1];
-		// int portGroupe = Integer.parseInt(args[2]);
-		String portGroupe = "2222";
+		String portGroupe = args[1];
+
+		// autres variables pouvant être passées en paramètre
 		String nomGroupe = "groupe";
-		String nomGroupeComplet = "rmi://localhost:" + portGroupe + "/"
-				+ nomGroupe;
-		String nomClientPartiel = "rmi://localhost:" + portGroupe + "/client";
+		String lieuExecutionGroupe = "localhost";
 
+		// chemin vers groupe et client
+		String nomGroupeComplet = "rmi://" + lieuExecutionGroupe + ":"
+				+ portGroupe + "/" + nomGroupe;
+		String nomClientPartiel = "rmi://" + lieuExecutionGroupe + ":"
+				+ portGroupe + "/client";
+
+		// création du client
 		LanceurClient lc = new LanceurClient();
-
 		lc.connexionGroupe(nomGroupeComplet);
 		lc.associeProtocole(typeProtocole);
 		lc.connexionProtocole2Groupe(typeProtocole, nomClientPartiel);

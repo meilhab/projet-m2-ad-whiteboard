@@ -41,15 +41,18 @@ public class LogManager {
 			}
 			break;
 		default:
-			// type incorrect : lancer exception ?
+			nomFichier = "log/logProtocole_idClient_inconnu.txt";
+			break;
 		}
+		
+		initialisation();
 	}
 
 	/**
 	 * Vérifie que le dossier de log existe ou non et supprime les fichiers qui
 	 * le composent
 	 */
-	public void initialisation() {
+	private void initialisation() {
 		File dossier = new File("log");
 		if (!dossier.exists()) {
 			dossier.mkdir();
