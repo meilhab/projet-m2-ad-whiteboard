@@ -45,14 +45,29 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	private LogManager log;
 
 	/**
+	 * type de protocole général
+	 */
+	private int typeProtocole;
+
+	/**
+	 * IP du groupe
+	 */
+	private String ipGroupe;
+
+	/**
 	 * Constructeur du Groupe par défaut
 	 * 
-	 * @throws RemoteException
+	 * @param ipGroupe
+	 *            adresse ip du groupe
+	 * @throws IOException
 	 */
-	public Groupe() throws RemoteException {
+	public Groupe(String ipGroupe) throws IOException {
 		super();
+
 		liste_voisins = new HashMap<Integer, IProtocole>(nbClientsTotal);
 		log = new LogManager(LogManager.GROUPE, -1);
+		typeProtocole = -1;
+		this.ipGroupe = ipGroupe;
 	}
 
 	/**
@@ -61,7 +76,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 * @return un numéro de client compris entre 0 et 4 si une place dans la
 	 *         liste est disponible, -1 sinon
 	 */
-	private int getNumClient() {
+	public int getNumClient() {
 		if (liste_voisins.size() < 5) {
 			for (int i = 0; i < nbClientsTotal; i++) {
 				if (liste_voisins.containsKey(i) == false) {
@@ -72,9 +87,32 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 		return -1;
 	}
 
-	//**********************
-	//* RMI implémentations*
-	//**********************
+	/**
+	 * Logs annonçant la fin du lancement du groupe
+	 * 
+	 * @throws IOException
+	 */
+	public void finConfigurationRMI() throws IOException {
+		log.log("Groupe prêt !");
+		log.log("Attente des clients sur -> " + ipGroupe);
+	}
+
+	/**
+	 * Lancement des interfaces graphique pour tous les clients enregistrés
+	 * 
+	 * @throws IOException
+	 */
+	public void lancerGUI() throws IOException {
+		log.log("Lancement de l'interface graphique des clients");
+
+		for (IProtocole ip : liste_voisins.values()) {
+			ip.lancerGUI();
+		}
+	}
+
+	// **********************
+	// * RMI implémentations*
+	// **********************
 
 	/*
 	 * (non-Javadoc)
@@ -82,24 +120,81 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 * @see groupe.IGroupe#enregistrementClient(protocoles.IProtocole)
 	 */
 	@Override
-	public synchronized void enregistrementClient(IProtocole ip)
-			throws IOException, NotBoundException {
+	public synchronized void enregistrementClient(IProtocole ip,
+			int typeProtocole) throws IOException, NotBoundException,
+			RemoteException {
 		log.log("Demande d'enregistrement client");
 
-		int taille = liste_voisins.size();
-		if (taille == nbClientsTotal) {
-			log.log("\tNon traîtée : liste de participants pleine");
-		} else if (taille < nbClientsTotal) {
-			int numClient = getNumClient();
-			log.log("\tTraîtement en cours : enregistrement client" + numClient);
+		if (this.typeProtocole == -1) {
+			this.typeProtocole = typeProtocole;
 
-			liste_voisins.put(numClient, ip);
-			ip.attributionIdClient(numClient);
-
-			// fait suivre le fait qu'on a fini l'enregistrement
-			if (taille + 1 == nbClientsTotal) {
-				log.log("\tFin des enregistrements : transmission aux clients");
+			switch (this.typeProtocole) {
+			case Protocole.LAMPORT:
+				log.log("Protocole initialisé : Lamport");
+				break;
+			case Protocole.SUZUKIKASAMI:
+				log.log("Protocole initialisé : Suzuki-Kasami");
+				break;
+			case Protocole.NAIMITREHEL:
+				log.log("Protocole initialisé : Naimi-Trehel");
+				break;
 			}
+		}
+
+		if (this.typeProtocole == typeProtocole) {
+			int taille = liste_voisins.size();
+			if (taille == nbClientsTotal) {
+				log.log("\tNon traîtée : liste de participants pleine");
+
+				ip.resultatEnregistrementGroupe("Liste de participants pleine");
+			} else if (taille < nbClientsTotal) {
+				int numClient = getNumClient();
+				log.log("\tTraîtement en cours : enregistrement client"
+						+ numClient);
+
+				liste_voisins.put(numClient, ip);
+				ip.attributionIdClient(numClient);
+
+				ip.resultatEnregistrementGroupe("Enregistrement client"
+						+ numClient);
+
+				// fait suivre le fait qu'on a fini l'enregistrement
+				if (taille + 1 == nbClientsTotal) {
+					log.log("\tFin des enregistrements : transmission aux clients");
+				}
+			}
+		} else {
+			log.log("\tNon traîtée : protocole client incorrect avec le groupe");
+
+			String protocoleGroupe = "";
+			switch (this.typeProtocole) {
+			case Protocole.LAMPORT:
+				protocoleGroupe = "Lamport";
+				break;
+			case Protocole.SUZUKIKASAMI:
+				protocoleGroupe = "SuzukiKasami";
+				break;
+			case Protocole.NAIMITREHEL:
+				protocoleGroupe = "NaimiTrehel";
+				break;
+			}
+
+			String protocoleClient = "";
+			switch (typeProtocole) {
+			case Protocole.LAMPORT:
+				protocoleClient = "Lamport";
+				break;
+			case Protocole.SUZUKIKASAMI:
+				protocoleClient = "SuzukiKasami";
+				break;
+			case Protocole.NAIMITREHEL:
+				protocoleClient = "NaimiTrehel";
+				break;
+			}
+
+			ip.resultatEnregistrementGroupe("Protocole client ("
+					+ protocoleClient + ") incorrect avec le groupe ("
+					+ protocoleGroupe + ")");
 		}
 	}
 
@@ -109,7 +204,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 * @see groupe.IGroupe#suppressionClient(protocoles.IProtocole)
 	 */
 	public synchronized void suppressionClient(IProtocole ip)
-			throws IOException {
+			throws IOException, RemoteException {
 		if (liste_voisins.size() > 0) {
 			int id = ip.recuperationIdClient();
 			liste_voisins.remove(id);
@@ -126,7 +221,7 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	@Override
 	public void receptionMessage(int tp, int tm, int idEnvoi,
 			int idDestination, int horloge, int jeton[]) throws IOException,
-			InterruptedException {
+			InterruptedException, RemoteException {
 		Random r = new Random();
 		// entre 1s et 3s
 		int valeur = 1000 + r.nextInt(3000 - 1000);
@@ -210,9 +305,10 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 	 * 
 	 * @see groupe.IGroupe#receptionForme(int, gui.Forme)
 	 */
-	public void receptionForme(int idEnvoi, Forme forme) throws IOException {
-		log.log("Réception d'une forme : \""+ forme.toString() +"\" de[" + idEnvoi
-				+ "] : transmission aux clients");
+	public void receptionForme(int idEnvoi, Forme forme) throws IOException,
+			RemoteException {
+		log.log("Réception d'une forme : \"" + forme.toString() + "\" de["
+				+ idEnvoi + "] : transmission aux clients");
 
 		for (int i = 0; i < liste_voisins.keySet().size(); i++) {
 			if (i != idEnvoi) {

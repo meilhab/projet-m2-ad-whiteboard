@@ -318,4 +318,11 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 
 		tableauBlanc.canvas.delivreForme(forme);
 	}
+	
+	/* (non-Javadoc)
+	 * @see protocoles.IProtocole#resultatEnregistrementGroupe(java.lang.String)
+	 */
+	public void resultatEnregistrementGroupe(String message) throws RemoteException, IOException {
+		log.log(message);
+	}
 }

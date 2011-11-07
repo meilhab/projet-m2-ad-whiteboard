@@ -64,23 +64,6 @@ public class TableauBlancUI extends JFrame implements ActionListener,
 
 		pack();
 		setVisible(true);
-		
-		Dimension tailleEcran = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-		int largeurEcran = (int)tailleEcran.getWidth();
-		int largeurFenetre = this.getWidth();
-		int idClient = Integer.parseInt(numClient);
-		
-		int tempX = idClient * largeurFenetre;
-		int tempY = 0;
-		
-		int nbParLigne = largeurEcran / largeurFenetre;		
-		if(idClient + 1 > nbParLigne){
-			tempY = this.getHeight() + this.getY();
-			idClient -= nbParLigne;
-			tempX = idClient * largeurFenetre;
-		}
-
-		setLocation(tempX, tempY);
 	}
 
 	/**

@@ -25,8 +25,8 @@ public interface IGroupe extends Remote {
 	 * @throws IOException
 	 * @throws NotBoundException
 	 */
-	public void enregistrementClient(IProtocole ip) throws IOException,
-			NotBoundException;
+	public void enregistrementClient(IProtocole ip, int typeProtocole) throws IOException,
+			NotBoundException, RemoteException;
 
 	/**
 	 * Suppression d'un client de la liste enregistrée
@@ -35,7 +35,7 @@ public interface IGroupe extends Remote {
 	 *            client demandant la suppression
 	 * @throws IOException
 	 */
-	public void suppressionClient(IProtocole ip) throws IOException;
+	public void suppressionClient(IProtocole ip) throws IOException, RemoteException;
 
 	/**
 	 * Réception d'un message et transmission au(x) destinataire(s)
@@ -60,7 +60,7 @@ public interface IGroupe extends Remote {
 	 */
 	public void receptionMessage(int tp, int tm, int idEnvoi,
 			int idDestination, int horloge, int jeton[]) throws IOException,
-			InterruptedException;
+			InterruptedException, RemoteException;
 
 	/**
 	 * Réception d'une forme géométrique à transmettre aux autres clients
@@ -73,5 +73,5 @@ public interface IGroupe extends Remote {
 	 * @throws IOException
 	 */
 	public void receptionForme(int idEnvoi, Forme forme)
-			throws RemoteException, IOException;
+			throws RemoteException, IOException, RemoteException;
 }

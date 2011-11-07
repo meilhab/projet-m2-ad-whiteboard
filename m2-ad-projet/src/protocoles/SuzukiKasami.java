@@ -314,4 +314,11 @@ public class SuzukiKasami extends Protocole implements ISuzukiKasami,
 
 		tableauBlanc.canvas.delivreForme(forme);
 	}
+	
+	/* (non-Javadoc)
+	 * @see protocoles.IProtocole#resultatEnregistrementGroupe(java.lang.String)
+	 */
+	public void resultatEnregistrementGroupe(String message) throws RemoteException, IOException {
+		log.log(message);
+	}
 }
