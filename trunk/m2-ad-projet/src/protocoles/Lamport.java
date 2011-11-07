@@ -137,7 +137,20 @@ public class Lamport extends Protocole implements ILamport, IProtocole {
 					+ forme.toString() + "\"");
 
 			tableauBlanc.canvas.delivreForme(forme);
-			igroupe.receptionForme(idClient, forme);
+			
+			
+			final Forme formeTemp = forme;
+			Thread th = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Lamport.this.igroupe.receptionForme(idClient, formeTemp);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			th.start();
 		}
 
 		libereAcces();
