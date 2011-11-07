@@ -164,34 +164,38 @@ public class Groupe extends UnicastRemoteObject implements IGroupe {
 				}
 			}
 		} else {
-			log.log("\tNon traîtée : protocole client incorrect avec le groupe");
-
 			String protocoleGroupe = "";
 			switch (this.typeProtocole) {
 			case Protocole.LAMPORT:
-				protocoleGroupe = "Lamport";
+				protocoleGroupe += "Lamport";
 				break;
 			case Protocole.SUZUKIKASAMI:
-				protocoleGroupe = "SuzukiKasami";
+				protocoleGroupe += "SuzukiKasami";
 				break;
 			case Protocole.NAIMITREHEL:
-				protocoleGroupe = "NaimiTrehel";
+				protocoleGroupe += "NaimiTrehel";
 				break;
 			}
 
 			String protocoleClient = "";
 			switch (typeProtocole) {
 			case Protocole.LAMPORT:
-				protocoleClient = "Lamport";
+				protocoleClient += "Lamport";
 				break;
 			case Protocole.SUZUKIKASAMI:
-				protocoleClient = "SuzukiKasami";
+				protocoleClient += "SuzukiKasami";
 				break;
 			case Protocole.NAIMITREHEL:
-				protocoleClient = "NaimiTrehel";
+				protocoleClient += "NaimiTrehel";
 				break;
 			}
 
+			log.log("\tNon traîtée : protocole client ("
+					+ protocoleClient + ") incorrect avec le groupe ("
+					+ protocoleGroupe + ")");
+			
+			
+			ip.attributionIdClient(-1);
 			ip.resultatEnregistrementGroupe("Protocole client ("
 					+ protocoleClient + ") incorrect avec le groupe ("
 					+ protocoleGroupe + ")");
