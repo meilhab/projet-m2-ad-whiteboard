@@ -130,7 +130,19 @@ public class NaimiTrehel extends Protocole implements INaimiTrehel, IProtocole {
 					+ forme.toString() + "\"");
 
 			tableauBlanc.canvas.delivreForme(forme);
-			igroupe.receptionForme(idClient, forme);
+			
+			final Forme formeTemp = forme;
+			Thread th = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						NaimiTrehel.this.igroupe.receptionForme(idClient, formeTemp);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			th.start();
 		}
 
 		libereAcces();
