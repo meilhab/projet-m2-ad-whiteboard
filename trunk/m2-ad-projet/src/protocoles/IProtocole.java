@@ -31,6 +31,18 @@ public interface IProtocole extends Remote {
 	public int recuperationIdClient() throws RemoteException;
 
 	/**
+	 * Informe le client du résultat de sa demande d'enregistrement
+	 * 
+	 * @param message
+	 *            message contenant le résultat de l'enregistrement du client
+	 *            sur le groupe
+	 * @throws RemoteException
+	 * @throws IOException
+	 */
+	public void resultatEnregistrementGroupe(String message)
+			throws RemoteException, IOException;
+
+	/**
 	 * Lancement de l'interface graphique
 	 * 
 	 * @throws RemoteException
